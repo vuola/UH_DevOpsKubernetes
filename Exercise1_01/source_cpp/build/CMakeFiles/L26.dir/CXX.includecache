@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/vuola/UH/Kubernetes/UH_DevOpsKubernetes/Exercise1_01/source_cpp/main.cpp
+iostream
+-
+ctime
+-
+

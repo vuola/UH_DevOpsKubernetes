@@ -1,0 +1,69 @@
+(base) vuola@Markuss-MacBook-Air source2 % docker build -t vuolahti/tagger .
+[+] Building 2.4s (9/9) FINISHED                                                                                                                                              
+ => [internal] load build definition from Dockerfile                                                                                                                     0.1s
+ => => transferring dockerfile: 37B                                                                                                                                      0.0s
+ => [internal] load .dockerignore                                                                                                                                        0.0s
+ => => transferring context: 2B                                                                                                                                          0.0s
+ => [internal] load metadata for docker.io/library/ubuntu:20.04                                                                                                          0.9s
+ => [internal] load build context                                                                                                                                        0.0s
+ => => transferring context: 196B                                                                                                                                        0.0s
+ => [1/4] FROM docker.io/library/ubuntu:20.04@sha256:fd92c36d3cb9b1d027c4d2a72c6bf0125da82425fc2ca37c414d4f010180dc19                                                    0.0s
+ => CACHED [2/4] WORKDIR /usr/src/app                                                                                                                                    0.0s
+ => [3/4] COPY logoutput.sh .                                                                                                                                            0.1s
+ => [4/4] RUN chmod u+x ./logoutput.sh                                                                                                                                   0.8s
+ => exporting to image                                                                                                                                                   0.2s
+ => => exporting layers                                                                                                                                                  0.2s
+ => => writing image sha256:18ead5325a038d70b9f1a8b4cbf97cf7717a3ca37dcefc58a0101aa66dbe1bb1                                                                             0.0s
+ => => naming to docker.io/vuolahti/tagger                                                                                                                               0.0s
+
+Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
+(base) vuola@Markuss-MacBook-Air source2 % docker run -i -t vuolahti/tagger 
+2022-06-26T07:21:32.931Z	d41d8cd98f00b204e980
+2022-06-26T07:21:37.917Z	d41d8cd98f00b204e980
+2022-06-26T07:21:42.924Z	d41d8cd98f00b204e980
+2022-06-26T07:21:47.934Z	d41d8cd98f00b204e980
+2022-06-26T07:21:52.941Z	d41d8cd98f00b204e980
+2022-06-26T07:21:57.949Z	d41d8cd98f00b204e980
+^C%                                                                                                                                                                           (base) vuola@Markuss-MacBook-Air source2 % docker push vuolahti/tagger
+Using default tag: latest
+The push refers to repository [docker.io/vuolahti/tagger]
+73b5af1dafb2: Pushed 
+452008f14acf: Pushed 
+af7ed92504ae: Mounted from library/ubuntu 
+latest: digest: sha256:3ff2621367812370ec3f65ac6188e1ac18a2c682eb0f4b4ee840a7fe8f589783 size: 1150
+(base) vuola@Markuss-MacBook-Air source2 % kubectl create deployment logoutput --image=vuolahti/tagger
+deployment.apps/logoutput created
+(base) vuola@Markuss-MacBook-Air source2 % kubectl get pods
+NAME                         READY   STATUS    RESTARTS   AGE
+logoutput-56d94cd5d4-27fvm   1/1     Running   0          21s
+(base) vuola@Markuss-MacBook-Air source2 % kubectl logs -f logoutput-56d94cd5d4-27fvm
+2022-06-26T07:25:34.779Z	d41d8cd98f00b204e980
+2022-06-26T07:25:39.778Z	d41d8cd98f00b204e980
+2022-06-26T07:25:44.788Z	d41d8cd98f00b204e980
+2022-06-26T07:25:49.795Z	d41d8cd98f00b204e980
+2022-06-26T07:25:54.800Z	d41d8cd98f00b204e980
+2022-06-26T07:25:59.806Z	d41d8cd98f00b204e980
+2022-06-26T07:26:04.810Z	d41d8cd98f00b204e980
+2022-06-26T07:26:09.798Z	d41d8cd98f00b204e980
+2022-06-26T07:26:14.812Z	d41d8cd98f00b204e980
+2022-06-26T07:26:19.818Z	d41d8cd98f00b204e980
+2022-06-26T07:26:24.824Z	d41d8cd98f00b204e980
+2022-06-26T07:26:29.829Z	d41d8cd98f00b204e980
+2022-06-26T07:26:34.839Z	d41d8cd98f00b204e980
+2022-06-26T07:26:39.831Z	d41d8cd98f00b204e980
+2022-06-26T07:26:44.836Z	d41d8cd98f00b204e980
+2022-06-26T07:26:49.842Z	d41d8cd98f00b204e980
+2022-06-26T07:26:54.847Z	d41d8cd98f00b204e980
+2022-06-26T07:26:59.856Z	d41d8cd98f00b204e980
+2022-06-26T07:27:04.863Z	d41d8cd98f00b204e980
+2022-06-26T07:27:09.847Z	d41d8cd98f00b204e980
+2022-06-26T07:27:14.854Z	d41d8cd98f00b204e980
+2022-06-26T07:27:19.862Z	d41d8cd98f00b204e980
+2022-06-26T07:27:24.870Z	d41d8cd98f00b204e980
+2022-06-26T07:27:29.880Z	d41d8cd98f00b204e980
+2022-06-26T07:27:34.892Z	d41d8cd98f00b204e980
+2022-06-26T07:27:39.878Z	d41d8cd98f00b204e980
+2022-06-26T07:27:44.937Z	d41d8cd98f00b204e980
+2022-06-26T07:27:49.945Z	d41d8cd98f00b204e980
+^C
+(base) vuola@Markuss-MacBook-Air source2 % 
