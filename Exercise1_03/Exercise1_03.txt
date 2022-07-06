@@ -1,0 +1,15 @@
+(base) vuola@Markuss-MacBook-Air Exercise1_03 % kubectl apply -f manifests/deployment.yaml
+deployment.apps/tagger-cpp-dep created
+(base) vuola@Markuss-MacBook-Air Exercise1_03 % kubectl get deployments                 
+NAME                READY   UP-TO-DATE   AVAILABLE   AGE
+tagger-cpp-dep      1/1     1            1           13s
+(base) vuola@Markuss-MacBook-Air Exercise1_03 % kubectl get pods                        
+NAME                                READY   STATUS    RESTARTS   AGE
+tagger-cpp-dep-8557877f85-xdr7k     1/1     Running   0          22s
+(base) vuola@Markuss-MacBook-Air Exercise1_03 % kubectl logs -f tagger-cpp-dep-8557877f85-xdr7k    
+2022-07-06 11:07:29Z R0LMae7tInJp1Us5FqKVQS2kd4YxoiNC
+2022-07-06 11:07:34Z R0LMae7tInJp1Us5FqKVQS2kd4YxoiNC
+2022-07-06 11:07:39Z R0LMae7tInJp1Us5FqKVQS2kd4YxoiNC
+2022-07-06 11:07:44Z R0LMae7tInJp1Us5FqKVQS2kd4YxoiNC
+2022-07-06 11:07:49Z R0LMae7tInJp1Us5FqKVQS2kd4YxoiNC
+2022-07-06 11:07:54Z R0LMae7tInJp1Us5FqKVQS2kd4YxoiNC

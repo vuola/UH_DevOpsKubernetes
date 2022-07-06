@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tagger-cpp-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tagger-cpp
+  template:
+    metadata:
+      labels:
+        app: tagger-cpp
+    spec:
+      containers:
+        - name: tagger-cpp
+          image: vuolahti/tagger-cpp
