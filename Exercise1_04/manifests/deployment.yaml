@@ -14,4 +14,4 @@ spec:
     spec:
       containers:
         - name: server102
-          image: vuolahti/server102:first
+          image: vuolahti/server102:second
