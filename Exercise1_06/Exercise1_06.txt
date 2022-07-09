@@ -1,0 +1,64 @@
+CREATING NEW CLUSTER 'server-cluster'
+
+(base) vuola@Markuss-MacBook-Air test % k3d cluster create server-cluster --port 8100:30100@agent:0 -p 8101:80@loadbalancer --agents 2
+INFO[0000] portmapping '8101:80' targets the loadbalancer: defaulting to [servers:*:proxy agents:*:proxy] 
+INFO[0000] Prep: Network                                
+INFO[0000] Created network 'k3d-server-cluster'         
+INFO[0000] Created image volume k3d-server-cluster-images 
+INFO[0000] Starting new tools node...                   
+INFO[0000] Starting Node 'k3d-server-cluster-tools'     
+INFO[0001] Creating node 'k3d-server-cluster-server-0'  
+INFO[0001] Creating node 'k3d-server-cluster-agent-0'   
+INFO[0001] Creating node 'k3d-server-cluster-agent-1'   
+INFO[0001] Creating LoadBalancer 'k3d-server-cluster-serverlb' 
+INFO[0001] Using the k3d-tools node to gather environment information 
+INFO[0002] Starting new tools node...                   
+INFO[0002] Starting Node 'k3d-server-cluster-tools'     
+INFO[0003] Starting cluster 'server-cluster'            
+INFO[0003] Starting servers...                          
+INFO[0003] Starting Node 'k3d-server-cluster-server-0'  
+INFO[0012] Starting agents...                           
+INFO[0012] Starting Node 'k3d-server-cluster-agent-0'   
+INFO[0012] Starting Node 'k3d-server-cluster-agent-1'   
+INFO[0024] Starting helpers...                          
+INFO[0024] Starting Node 'k3d-server-cluster-serverlb'  
+INFO[0031] Injecting records for hostAliases (incl. host.k3d.internal) and for 5 network members into CoreDNS configmap... 
+INFO[0034] Cluster 'server-cluster' created successfully! 
+INFO[0034] You can now use it like this:                
+kubectl cluster-info
+
+DEPLOYMENT & SERVICE START
+
+(base) vuola@Markuss-MacBook-Air Exercise1_06 % kubectl apply -f manifests/deployment.yaml
+deployment.apps/server102-dep created
+(base) vuola@Markuss-MacBook-Air Exercise1_06 % kubectl apply -f manifests/service.yaml   
+service/server102-svc created
+(base) vuola@Markuss-MacBook-Air Exercise1_06 % 
+
+POD LOG
+
+Server started at port 80
+2022/07/07 11:52:36 [notice] 8#8: using the "epoll" event method
+2022/07/07 11:52:36 [notice] 8#8: nginx/1.23.0
+2022/07/07 11:52:36 [notice] 8#8: built by gcc 10.2.1 20210110 (Debian 10.2.1-6) 
+2022/07/07 11:52:36 [notice] 8#8: OS: Linux 5.10.104-linuxkit
+2022/07/07 11:52:36 [notice] 8#8: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2022/07/07 11:52:36 [notice] 8#8: start worker processes
+2022/07/07 11:52:36 [notice] 8#8: start worker process 9
+2022/07/07 11:52:36 [notice] 8#8: start worker process 10
+10.42.2.0 - - [07/Jul/2022:11:57:16 +0000] "GET / HTTP/1.1" 200 103 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36" "-"
+2022/07/07 11:57:16 [error] 10#10: *1 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 10.42.2.0, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost:8100", referrer: "http://localhost:8100/"
+10.42.2.0 - - [07/Jul/2022:11:57:16 +0000] "GET /favicon.ico HTTP/1.1" 404 555 "http://localhost:8100/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36" "-"
+
+RESPONSE FROM SERVICE
+
+(base) vuola@Markuss-MacBook-Air Exercise1_06 % curl localhost:8100
+<html>
+    <head>
+        <body>
+            <h1>Hello world !</h1>
+        </body>
+    </head>
+</html>%                                                                                                                                                                                                                                          
+(base) vuola@Markuss-MacBook-Air Exercise1_06 % 
+

@@ -1,0 +1,100 @@
+COMMANDS:
+
+(base) vuola@Markuss-MacBook-Air server103 % docker build . -t vuolahti/server103:ten 
+[+] Building 31.0s (18/18) FINISHED                                                                                                                            
+ => [internal] load build definition from Dockerfile                                                                                                      0.0s
+ => => transferring dockerfile: 37B                                                                                                                       0.0s
+ => [internal] load .dockerignore                                                                                                                         0.0s
+ => => transferring context: 2B                                                                                                                           0.0s
+ => [internal] load metadata for docker.io/library/nginx:alpine                                                                                           1.6s
+ => [auth] library/nginx:pull token for registry-1.docker.io                                                                                              0.0s
+ => CACHED [ 1/12] FROM docker.io/library/nginx:alpine@sha256:8e38930f0390cbd79b2d1528405fb17edcda5f4a30875ecf338ebaa598dc994e                            0.0s
+ => [internal] load build context                                                                                                                         0.0s
+ => => transferring context: 546B                                                                                                                         0.0s
+ => [ 2/12] COPY static-html-directory /usr/share/nginx/html                                                                                              0.1s
+ => [ 3/12] COPY myscript ./myscript                                                                                                                      0.1s
+ => [ 4/12] RUN apk update                                                                                                                                3.1s
+ => [ 5/12] RUN apk add build-base                                                                                                                        8.9s
+ => [ 6/12] RUN apk add cmake                                                                                                                             4.8s
+ => [ 7/12] RUN apk add --upgrade fmt-dev                                                                                                                 1.3s
+ => [ 8/12] COPY CMakeLists.txt .                                                                                                                         0.1s
+ => [ 9/12] COPY main.cpp .                                                                                                                               0.1s
+ => [10/12] RUN cmake -S . -B ./build                                                                                                                     1.8s
+ => [11/12] RUN cmake --build build                                                                                                                       5.7s
+ => [12/12] RUN chmod a+x ./build/logger                                                                                                                  0.5s
+ => exporting to image                                                                                                                                    2.6s
+ => => exporting layers                                                                                                                                   2.5s
+ => => writing image sha256:fb233e1a7c146c8a051b3d1407c296c6b5f54c74581a2b1182c618908a40bda8                                                              0.0s
+ => => naming to docker.io/vuolahti/server103:ten                                                                                                         0.0s
+
+Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
+(base) vuola@Markuss-MacBook-Air server103 % docker push vuolahti/server103:ten     
+The push refers to repository [docker.io/vuolahti/server103]
+ad524e91a7cb: Preparing 
+824c5e949c08: Preparing 
+fe3ab80bcfeb: Preparing 
+f08dbe0dfb2a: Preparing 
+8d51e8d276b8: Preparing 
+ad524e91a7cb: Pushed 
+f09236996816: Pushed 
+0a42dccecc09: Pushed 
+416a6c5fa73a: Pushed 
+82bd3e5a78ae: Pushed 
+f71d611985fd: Pushed 
+889ab273892d: Layer already exists 
+9ec529c881ef: Layer already exists 
+5da18141d115: Layer already exists 
+97a932510759: Layer already exists 
+c1dc3f68a3a7: Layer already exists 
+24302eb7d908: Layer already exists 
+ten: digest: sha256:0c0d098b5bf3809bbf462a2ded7522f2d65aba8e7715e4615f3e19e4362f4f25 size: 3870
+(base) vuola@Markuss-MacBook-Air server103 % cd ..
+
+(base) vuola@Markuss-MacBook-Air Exercise1_07 % kubectl apply -f manifests/                                  
+ingress.networking.k8s.io/labelservice-ingress created
+deployment.apps/server103-dep created
+service/server103-svc created
+(base) vuola@Markuss-MacBook-Air Exercise1_07 % kubectl get svc,ing
+NAME                    TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
+service/kubernetes      ClusterIP   10.43.0.1     <none>        443/TCP    16h
+service/server103-svc   ClusterIP   10.43.90.69   <none>        2345/TCP   36s
+
+NAME                                             CLASS    HOSTS   ADDRESS                            PORTS   AGE
+ingress.networking.k8s.io/labelservice-ingress   <none>   *       172.27.0.3,172.27.0.4,172.27.0.5   80      36s
+(base) vuola@Markuss-MacBook-Air Exercise1_07 % 
+
+
+SERVER LOG:
+
+Server started at port 80
+2022/07/09 04:19:16 [notice] 1#1: using the "epoll" event method
+2022/07/09 04:19:16 [notice] 1#1: nginx/1.23.0
+2022/07/09 04:19:16 [notice] 1#1: built by gcc 11.2.1 20220219 (Alpine 11.2.1_git20220219) 
+2022/07/09 04:19:16 [notice] 1#1: OS: Linux 5.10.104-linuxkit
+2022/07/09 04:19:16 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2022/07/09 04:19:16 [notice] 1#1: start worker processes
+2022/07/09 04:19:16 [notice] 1#1: start worker process 10
+2022/07/09 04:19:16 [notice] 1#1: start worker process 11
+10.42.2.4 - - [09/Jul/2022:04:20:39 +0000] "GET / HTTP/1.1" 200 311 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36" "10.42.1.0"
+10.42.2.4 - - [09/Jul/2022:04:20:39 +0000] "GET /label.txt HTTP/1.1" 200 54 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36" "10.42.1.0"
+2022/07/09 04:20:42 [error] 10#10: *1 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 10.42.2.4, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost:8081", referrer: "http://localhost:8081/"
+10.42.2.4 - - [09/Jul/2022:04:20:42 +0000] "GET /favicon.ico HTTP/1.1" 404 555 "http://localhost:8081/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36" "10.42.1.0"
+
+
+SERVER RESPONSE:
+
+(base) vuola@Markuss-MacBook-Air Exercise1_07 % curl localhost:8081
+<html>
+    <head>
+        <script>
+function readfile() {
+    alert(document.getElementById('iframe').contentDocument.body.firstChild.innerHTML);
+}
+        </script>
+    </head>
+    <body>
+        <h1>Timestamp</h1>
+        <iframe id='iframe' src = 'label.txt' onload='readfile()'> </iframe>
+    </body>
+</html>%                                                                                                        
+(base) vuola@Markuss-MacBook-Air Exercise1_07 % 

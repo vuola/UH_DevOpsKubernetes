@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: server102-dep
+  name: server103-dep
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: server102
+      app: server103
   template:
     metadata:
       labels:
-        app: server102
+        app: server103
     spec:
       containers:
-        - name: server102
-          image: vuolahti/server102:third
+        - name: server103
+          image: vuolahti/server103:ten

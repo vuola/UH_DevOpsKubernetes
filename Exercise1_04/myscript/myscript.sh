@@ -1,1 +1,1 @@
-echo "Server started at port $PORT" 
+echo "Server started at port $NGINX_PORT" 
