@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simplevolume-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simplevolume
+  template:
+    metadata:
+      labels:
+        app: simplevolume
+    spec:
+      volumes: # Define volume
+        - name: shared-volume
+          emptyDir: {}
+      containers:
+        - name: timestamper
+          image: vuolahti/timestamper:01
+          volumeMounts: # Mount volume
+          - name: shared-volume
+            mountPath: /var/www/html/file
+        - name: reader
+          image: vuolahti/reader:01
+          volumeMounts: # Mount volume
+          - name: shared-volume
+            mountPath: /var/www/html/file

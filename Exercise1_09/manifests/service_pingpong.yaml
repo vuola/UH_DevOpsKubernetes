@@ -9,4 +9,4 @@ spec:
   ports:
     - port: 2346 # This is a port that is available to the cluster
       protocol: TCP
-      targetPort: 8080 # This is the target port 
+      targetPort: 8080 # This is the target port

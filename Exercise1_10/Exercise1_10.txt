@@ -1,0 +1,69 @@
+COMMANDS
+
+(base) vuola@Markuss-MacBook-Air reader % docker push vuolahti/reader:01
+The push refers to repository [docker.io/vuolahti/reader]
+c38e17cf7188: Layer already exists 
+70388642738a: Layer already exists 
+041bbe03c428: Layer already exists 
+6cf0341178c7: Layer already exists 
+f6434ef3b5e4: Layer already exists 
+a69800c012b7: Layer already exists 
+e8835feba4ff: Layer already exists 
+5b804b2870c4: Layer already exists 
+48126dc10381: Layer already exists 
+1666941f2b22: Layer already exists 
+d751d7402017: Layer already exists 
+24302eb7d908: Layer already exists 
+01: digest: sha256:68eeb1ffad9c36ad63f02ba939a89ee5826eb26dd9b1fd491a490e8ea99d39e2 size: 2812
+(base) vuola@Markuss-MacBook-Air reader % cd ..
+(base) vuola@Markuss-MacBook-Air Exercise1_10 % ls 
+manifests       reader          timestamper
+(base) vuola@Markuss-MacBook-Air Exercise1_10 % cd timestamper
+(base) vuola@Markuss-MacBook-Air timestamper % docker push vuolahti/timestamper:01
+The push refers to repository [docker.io/vuolahti/timestamper]
+c14fd8de2814: Pushed 
+e187a2dd4ba2: Pushed 
+a229c55ec330: Pushed 
+b94dec922131: Pushed 
+ad23d102ccd3: Pushed 
+da6dfd43f441: Layer already exists 
+eec3f2faee9f: Layer already exists 
+24302eb7d908: Layer already exists 
+01: digest: sha256:8705ecd0d0da82ffa5b1c804e662e3a6deb98f2128beea849b250d95b3346ea9 size: 1984
+(base) vuola@Markuss-MacBook-Air timestamper % cd ..
+(base) vuola@Markuss-MacBook-Air Exercise1_10 % kubectl apply -f manifests/
+deployment.apps/simplevolume-dep created
+ingress.networking.k8s.io/simplevolume-ingress created
+service/simplevolume-svc created
+(base) vuola@Markuss-MacBook-Air Exercise1_10 % 
+
+CONTAINER LOGS
+
+reader:01
+
+Server started at port 8080
+2022-07-11 20:26:58,927 INFO supervisord started with pid 1
+2022-07-11 20:26:59,931 INFO spawned: 'nginx' with pid 10
+2022-07-11 20:26:59,938 INFO spawned: 'php-fpm' with pid 11
+2022-07-11 20:26:59,939 INFO reaped unknown pid 9 (exit status 0)
+[11-Jul-2022 20:27:00] NOTICE: fpm is running, pid 11
+[11-Jul-2022 20:27:00] NOTICE: ready to handle connections
+2022-07-11 20:27:01,041 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2022-07-11 20:27:01,041 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+10.42.2.4 - - [11/Jul/2022:20:29:18 +0000] "GET / HTTP/1.1" 200 85 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.0.0" 0.021 0.021 . -
+10.42.2.4 - - [11/Jul/2022:20:29:26 +0000] "GET / HTTP/1.1" 200 85 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.0.0" 0.000 0.000 . -
+10.42.2.4 - - [11/Jul/2022:20:29:28 +0000] "GET / HTTP/1.1" 200 85 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.0.0" 0.001 0.001 . -
+10.42.2.4 - - [11/Jul/2022:20:29:31 +0000] "GET / HTTP/1.1" 200 83 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.0.0" 0.001 0.001 . -
+10.42.2.4 - - [11/Jul/2022:20:29:35 +0000] "GET / HTTP/1.1" 200 85 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.0.0" 0.001 0.000 . -
+
+timestamper:01
+
+Timestamper started
+
+RESPONSE FROM service
+
+(base) vuola@Markuss-MacBook-Air Exercise1_10 % curl localhost:8081
+2022-07-11 20:36:44Z S3vieXJb5swBakxHRLCOVDuGg20K9p6I
+(base) vuola@Markuss-MacBook-Air Exercise1_10 % curl localhost:8081
+2022-07-11 20:36:49Z S3vieXJb5swBakxHRLCOVDuGg20K9p6I
+(base) vuola@Markuss-MacBook-Air Exercise1_10 %     
