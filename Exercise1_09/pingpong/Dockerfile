@@ -43,26 +43,28 @@ COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Make sure files/folders needed by the processes are accessable when they run under the nobody user
 RUN chown -R nobody.nobody /var/www/html /run /var/lib/nginx /var/log/nginx
 
-COPY html /var/www/html
-COPY myscript /var/www/html
-RUN chmod a+x /var/www/html/myscript.sh
-ARG _PORT_=5000
+# Add application
+COPY --chown=nobody html/ /var/www/html/
+
+# Add scripts
+COPY myscript /var/www/script
+RUN chmod a+x /var/www/script/myscript.sh
+
+# Start message variables 
+ARG _PORT_=8080
 ENV PORT=${_PORT_}
-ARG _NGINX_PORT_=80
+ARG _NGINX_PORT_=8080
 ENV NGINX_PORT=${_NGINX_PORT_}
 
 # Switch to use a non-root user from here on
 USER nobody
-
-# Add application
-COPY --chown=nobody src/ /var/www/html/
 
 # Expose the port nginx is reachable on
 EXPOSE 8080
 
 # Let supervisord start nginx & php-fpm
 # CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
-ENTRYPOINT /var/www/html/myscript.sh & /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+ENTRYPOINT /var/www/script/myscript.sh & /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
 
 # Configure a healthcheck to validate that everything is up&running
 HEALTHCHECK --timeout=10s CMD curl --silent --fail http://127.0.0.1:8080/fpm-ping

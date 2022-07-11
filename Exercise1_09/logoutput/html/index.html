@@ -1,0 +1,13 @@
+<html>
+    <head>
+        <script>
+function readfile() {
+    alert(document.getElementById('iframe').contentDocument.body.firstChild.innerHTML);
+}
+        </script>
+    </head>
+    <body>
+        <h1>Timestamp</h1>
+        <iframe id='iframe' src = 'label.txt' onload='readfile()'> </iframe>
+    </body>
+</html>
