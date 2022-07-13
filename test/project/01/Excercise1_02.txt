@@ -1,0 +1,56 @@
+(base) vuola@Markuss-MacBook-Air Exercise1_02 % docker build . -t vuolahti/server102 --no-c
+ache
+[+] Building 0.3s (8/8) FINISHED                                                           
+ => [internal] load build definition from Dockerfile                                  0.0s
+ => => transferring dockerfile: 37B                                                   0.0s
+ => [internal] load .dockerignore                                                     0.0s
+ => => transferring context: 2B                                                       0.0s
+ => [internal] load metadata for docker.io/library/nginx:latest                       0.0s
+ => CACHED [1/3] FROM docker.io/library/nginx                                         0.0s
+ => [internal] load build context                                                     0.0s
+ => => transferring context: 161B                                                     0.0s
+ => [2/3] COPY static-html-directory /usr/share/nginx/html                            0.0s
+ => [3/3] COPY myscript ./myscript                                                    0.0s
+ => exporting to image                                                                0.1s
+ => => exporting layers                                                               0.1s
+ => => writing image sha256:df39962b18270a0e4ed03ca475903c0e5197a0fd1a5cfe28eb912e21  0.0s
+ => => naming to docker.io/vuolahti/server102                                         0.0s
+
+Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
+(base) vuola@Markuss-MacBook-Air Exercise1_02 % docker push vuolahti/server102 
+Using default tag: latest
+The push refers to repository [docker.io/vuolahti/server102]
+3d5b046eab7a: Pushed 
+264d42f5ff20: Pushed 
+e7344f8a29a3: Layer already exists 
+44193d3f4ea2: Layer already exists 
+41451f050aa8: Layer already exists 
+b2f82de68e0d: Layer already exists 
+d5b40e80384b: Layer already exists 
+08249ce7456a: Layer already exists 
+latest: digest: sha256:4f9d78c13cefb1f129df21b6583b90901927e913333db61869836e140788bcd0 size: 1984
+(base) vuola@Markuss-MacBook-Air Exercise1_02 % kubectl create deployment --tag=vuolahti/se
+rver102
+Error: unknown flag: --tag
+See 'kubectl create deployment --help' for usage.
+(base) vuola@Markuss-MacBook-Air Exercise1_02 % kubectl create deployment --name=vuolahti/server102
+Error: unknown flag: --name
+See 'kubectl create deployment --help' for usage.
+(base) vuola@Markuss-MacBook-Air Exercise1_02 % kubectl create deployment server --image=vuolahti/server102
+deployment.apps/server created
+(base) vuola@Markuss-MacBook-Air Exercise1_02 % kubectl get pods
+NAME                      READY   STATUS    RESTARTS   AGE
+server-7db5868488-78rbn   1/1     Running   0          25s
+(base) vuola@Markuss-MacBook-Air Exercise1_02 % kubectl get logs -f server-7db5868488-78rbn 
+error: the path "server-7db5868488-78rbn" does not exist
+(base) vuola@Markuss-MacBook-Air Exercise1_02 % kubectl logs -f server-7db5868488-78rbn 
+Server started at port 8080
+2022/07/04 15:55:24 [notice] 8#8: using the "epoll" event method
+2022/07/04 15:55:24 [notice] 8#8: nginx/1.23.0
+2022/07/04 15:55:24 [notice] 8#8: built by gcc 10.2.1 20210110 (Debian 10.2.1-6) 
+2022/07/04 15:55:24 [notice] 8#8: OS: Linux 5.10.104-linuxkit
+2022/07/04 15:55:24 [notice] 8#8: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2022/07/04 15:55:24 [notice] 8#8: start worker processes
+2022/07/04 15:55:24 [notice] 8#8: start worker process 9
+2022/07/04 15:55:24 [notice] 8#8: start worker process 10
+(base) vuola@Markuss-MacBook-Air Exercise1_02 % 

@@ -1,12 +1,53 @@
 COMMANDS
 
+(base) vuola@Markuss-MacBook-Air Exercise1_11 % k3d cluster delete
+INFO[0000] Deleting cluster 'k3s-default'               
+INFO[0018] Deleting cluster network 'k3d-k3s-default'   
+INFO[0019] Deleting 2 attached volumes...               
+WARN[0019] Failed to delete volume 'k3d-k3s-default-images' of cluster 'k3s-default': failed to find volume 'k3d-k3s-default-images': Error: No such volume: k3d-k3s-default-images -> Try to delete it manually 
+INFO[0019] Removing cluster details from default kubeconfig... 
+INFO[0019] Removing standalone kubeconfig file (if there is one)... 
+INFO[0019] Successfully deleted cluster k3s-default!
+
 (base) vuola@Markuss-MacBook-Air Exercise1_11 % docker container ls
-CONTAINER ID   IMAGE                            COMMAND                  CREATED      STATUS      PORTS                                                                    NAMES
-5e46fd6438ec   ghcr.io/k3d-io/k3d-tools:5.4.3   "/app/k3d-tools noop"    4 days ago   Up 4 days                                                                            k3d-k3s-default-tools
-266e686d8074   ghcr.io/k3d-io/k3d-proxy:5.4.3   "/bin/sh -c nginx-pr…"   4 days ago   Up 4 days   0.0.0.0:8081->80/tcp, 0.0.0.0:59781->6443/tcp, 0.0.0.0:8082->30080/tcp   k3d-k3s-default-serverlb
-e9752a040911   rancher/k3s:v1.23.6-k3s1         "/bin/k3d-entrypoint…"   4 days ago   Up 4 days                                                                            k3d-k3s-default-agent-1
-2b7b43d25fb5   rancher/k3s:v1.23.6-k3s1         "/bin/k3d-entrypoint…"   4 days ago   Up 4 days                                                                            k3d-k3s-default-agent-0
-0f084e6325cf   rancher/k3s:v1.23.6-k3s1         "/bin/k3d-entrypoint…"   4 days ago   Up 4 days                                                                            k3d-k3s-default-server-0
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+(base) vuola@Markuss-MacBook-Air Exercise1_11 % k3d cluster create --port 8082:30080@agent:0 -p 8081:80@loadbalancer --agents 2
+INFO[0000] portmapping '8081:80' targets the loadbalancer: defaulting to [servers:*:proxy agents:*:proxy] 
+INFO[0000] Prep: Network                                
+INFO[0000] Created network 'k3d-k3s-default'            
+INFO[0000] Created image volume k3d-k3s-default-images  
+INFO[0000] Starting new tools node...                   
+INFO[0000] Starting Node 'k3d-k3s-default-tools'        
+INFO[0001] Creating node 'k3d-k3s-default-server-0'     
+INFO[0001] Creating node 'k3d-k3s-default-agent-0'      
+INFO[0001] Creating node 'k3d-k3s-default-agent-1'      
+INFO[0001] Creating LoadBalancer 'k3d-k3s-default-serverlb' 
+INFO[0001] Using the k3d-tools node to gather environment information 
+INFO[0002] Starting new tools node...                   
+INFO[0002] Starting Node 'k3d-k3s-default-tools'        
+INFO[0003] Starting cluster 'k3s-default'               
+INFO[0003] Starting servers...                          
+INFO[0004] Starting Node 'k3d-k3s-default-server-0'     
+INFO[0012] Starting agents...                           
+INFO[0013] Starting Node 'k3d-k3s-default-agent-1'      
+INFO[0013] Starting Node 'k3d-k3s-default-agent-0'      
+INFO[0024] Starting helpers...                          
+INFO[0024] Starting Node 'k3d-k3s-default-serverlb'     
+INFO[0032] Injecting records for hostAliases (incl. host.k3d.internal) and for 5 network members into CoreDNS configmap... 
+INFO[0035] Cluster 'k3s-default' created successfully!  
+INFO[0035] You can now use it like this:                
+kubectl cluster-info
+
+(base) vuola@Markuss-MacBook-Air Exercise1_11 % docker container ls                                                            
+CONTAINER ID   IMAGE                            COMMAND                  CREATED          STATUS          PORTS                                                                    NAMES
+c7fdd4de21b5   ghcr.io/k3d-io/k3d-tools:5.4.3   "/app/k3d-tools noop"    50 seconds ago   Up 49 seconds                                                                            k3d-k3s-default-tools
+9775883ddb26   ghcr.io/k3d-io/k3d-proxy:5.4.3   "/bin/sh -c nginx-pr…"   51 seconds ago   Up 26 seconds   0.0.0.0:8081->80/tcp, 0.0.0.0:60253->6443/tcp, 0.0.0.0:8082->30080/tcp   k3d-k3s-default-serverlb
+6c05fa4768cf   rancher/k3s:v1.23.6-k3s1         "/bin/k3d-entrypoint…"   51 seconds ago   Up 37 seconds                                                                            k3d-k3s-default-agent-1
+c803db870a8a   rancher/k3s:v1.23.6-k3s1         "/bin/k3d-entrypoint…"   51 seconds ago   Up 37 seconds                                                                            k3d-k3s-default-agent-0
+cf100b613b46   rancher/k3s:v1.23.6-k3s1         "/bin/k3d-entrypoint…"   51 seconds ago   Up 47 seconds                                                                            k3d-k3s-default-server-0
+
+(base) vuola@Markuss-MacBook-Air Exercise1_11 % docker exec k3d-k3s-default-agent-0 mkdir -p /tmp/kube
 
 (base) vuola@Markuss-MacBook-Air logoutput % docker build . -t vuolahti/logoutput:02 --no-cache
 [+] Building 45.7s (26/26) FINISHED                                                                                                                                                                                                                       
@@ -162,13 +203,17 @@ Server started at port 8080
 RESPONSE FROM SERVICE
 
 (base) vuola@Markuss-MacBook-Air Exercise1_11 % curl localhost:8081
-2022-07-13 06:04:01Z hmuVcJfj4CRB2rOk9b5HysDTi3KtGPXp 
-<br />Ping / Pongs: 17
+2022-07-13 06:43:20Z eZtULSHjo1PR0cwBXKn3qAupVviWQhOD
+<br />Ping / Pongs: 0
+
 (base) vuola@Markuss-MacBook-Air Exercise1_11 % curl localhost:8081
-2022-07-13 06:04:06Z hmuVcJfj4CRB2rOk9b5HysDTi3KtGPXp
-<br />Ping / Pongs: 17
+2022-07-13 06:43:55Z eZtULSHjo1PR0cwBXKn3qAupVviWQhOD 
+<br />Ping / Pongs: 0
+
 (base) vuola@Markuss-MacBook-Air Exercise1_11 % curl localhost:8081/pingpong
-PONG 17%                                                                                                                                                                                                                                                  
+PONG 0%                                                                                                                                                                                                                                                                    
+
 (base) vuola@Markuss-MacBook-Air Exercise1_11 % curl localhost:8081         
-2022-07-13 06:04:21Z hmuVcJfj4CRB2rOk9b5HysDTi3KtGPXp 
-<br />Ping / Pongs: 18
+2022-07-13 06:44:05Z eZtULSHjo1PR0cwBXKn3qAupVviWQhOD
+ <br />Ping / Pongs: 1
+

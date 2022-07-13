@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: project-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: project # This is the app as declared in the Deployment
+  ports:
+    - name: logoutput-port
+      protocol: TCP
+      port: 2345 # This is a port that is available to the cluster
+      targetPort: 8080 # This is the target port
+    - name: pingpong-port
+      protocol: TCP
+      port: 2346 # This is a port that is available to the cluster
+      targetPort: 8081 # This is the target port

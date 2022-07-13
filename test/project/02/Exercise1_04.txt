@@ -1,0 +1,26 @@
+
+(base) vuola@Markuss-MacBook-Air Exercise1_04 % docker push vuolahti/server102:second         
+The push refers to repository [docker.io/vuolahti/server102]
+3d5b046eab7a: Layer already exists 
+264d42f5ff20: Layer already exists 
+e7344f8a29a3: Layer already exists 
+44193d3f4ea2: Layer already exists 
+41451f050aa8: Layer already exists 
+b2f82de68e0d: Layer already exists 
+d5b40e80384b: Layer already exists 
+08249ce7456a: Layer already exists 
+second: digest: sha256:4f9d78c13cefb1f129df21b6583b90901927e913333db61869836e140788bcd0 size: 1984
+(base) vuola@Markuss-MacBook-Air Exercise1_04 % kubectl apply -f manifests/deployment.yaml 
+deployment.apps/server102-dep configured
+(base) vuola@Markuss-MacBook-Air Exercise1_04 % kubectl get pods
+NAME                                READY   STATUS        RESTARTS   AGE
+hashgenerator-dep-c6bf946cd-zd5wr   1/1     Running       0          69m
+tagger-cpp-dep-8557877f85-xdr7k     1/1     Running       0          44m
+server102-dep-79c4b4d7ff-vfwfg      1/1     Running       0          34s
+server102-dep-559cd99697-4x4qj      1/1     Terminating   0          16m
+(base) vuola@Markuss-MacBook-Air Exercise1_04 % kubectl get pods
+NAME                                READY   STATUS    RESTARTS   AGE
+hashgenerator-dep-c6bf946cd-zd5wr   1/1     Running   0          69m
+tagger-cpp-dep-8557877f85-xdr7k     1/1     Running   0          44m
+server102-dep-79c4b4d7ff-vfwfg      1/1     Running   0          38s
+(base) vuola@Markuss-MacBook-Air Exercise1_04 % 

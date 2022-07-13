@@ -1,0 +1,12 @@
+services:
+  frontend:
+    image: vuolahti/server102
+    build:
+      context: .
+      args:
+        - _PORT_=${_PORT_}
+        - _NGINX_PORT_=${_NGINX_PORT_}
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - ${_PORT_}:${_NGINX_PORT_}
