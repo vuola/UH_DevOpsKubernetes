@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logoutput-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logoutput
+  template:
+    metadata:
+      labels:
+        app: logoutput
+    spec:
+      securityContext:
+        fsGroup: 2000
+      volumes:
+        - name: shared-image
+          persistentVolumeClaim:
+            claimName: image-claim
+      containers:
+        - name: logoutput
+          image: vuolahti/logoutput:02
+          volumeMounts:
+          - name: shared-image
+            mountPath: /tmp/kube
