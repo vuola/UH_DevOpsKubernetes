@@ -1,0 +1,1 @@
+ln -s /Users/vuola/UH/Kubernetes/UH_DevOpsKubernetes/test/project/06/test/frontend-test/html /tmp/www/html
