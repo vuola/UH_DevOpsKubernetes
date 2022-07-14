@@ -1,0 +1,195 @@
+COMMANDS
+
+(base) vuola@Markuss-MacBook-Air backend % docker build . -t vuolahti/backend:02 --no-cache
+[+] Building 40.8s (20/20) FINISHED                                                                                                                                 
+ => [internal] load build definition from Dockerfile                                                                                                           0.1s
+ => => transferring dockerfile: 2.08kB                                                                                                                         0.0s
+ => [internal] load .dockerignore                                                                                                                              0.1s
+ => => transferring context: 2B                                                                                                                                0.0s
+ => [internal] load metadata for docker.io/library/alpine:3.16                                                                                                 2.5s
+ => [auth] library/alpine:pull token for registry-1.docker.io                                                                                                  0.0s
+ => [internal] load build context                                                                                                                              0.1s
+ => => transferring context: 9.71kB                                                                                                                            0.1s
+ => [ 1/14] FROM docker.io/library/alpine:3.16@sha256:686d8c9dfa6f3ccfc8230bc3178d23f84eeaf7e457f36f271ab1acc53015037c                                         0.0s
+ => CACHED [ 2/14] WORKDIR /var/www/html                                                                                                                       0.0s
+ => [ 3/14] RUN apk add --no-cache   curl   nginx   php81   php81-ctype   php81-curl   php81-dom   php81-fpm   php81-gd   php81-intl   php81-mbstring   php8  29.5s
+ => [ 4/14] RUN ln -s /usr/bin/php81 /usr/bin/php                                                                                                              1.3s 
+ => [ 5/14] COPY config/nginx.conf /etc/nginx/nginx.conf                                                                                                       0.4s 
+ => [ 6/14] COPY config/fpm-pool.conf /etc/php81/php-fpm.d/www.conf                                                                                            0.2s 
+ => [ 7/14] COPY config/php.ini /etc/php81/conf.d/custom.ini                                                                                                   0.5s 
+ => [ 8/14] COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf                                                                               0.1s 
+ => [ 9/14] RUN chown -R nobody.nobody /var/www/html /run /var/lib/nginx /var/log/nginx                                                                        0.5s
+ => [10/14] COPY --chown=nobody html/ /var/www/html/                                                                                                           0.1s
+ => [11/14] RUN mkdir /tmp/kube                                                                                                                                0.7s
+ => [12/14] RUN chmod a+rw /tmp/kube/                                                                                                                          0.7s
+ => [13/14] COPY myscript /var/www/script                                                                                                                      0.1s
+ => [14/14] RUN chmod a+x /var/www/script/myscript.sh                                                                                                          0.6s
+ => exporting to image                                                                                                                                         3.0s
+ => => exporting layers                                                                                                                                        3.0s
+ => => writing image sha256:6d2445714d57a28ea354091ab2ee4c4ebb58b3dc5e348c7fa23f363290cee8f0                                                                   0.0s
+ => => naming to docker.io/vuolahti/backend:02                                                                                                                 0.0s
+Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
+
+(base) vuola@Markuss-MacBook-Air backend % docker push vuolahti/backend:02
+The push refers to repository [docker.io/vuolahti/backend]
+7643d7692b6b: Pushed 
+9ed10cd94102: Pushed 
+994e6572c6e5: Pushed 
+e1da63dd9874: Pushed 
+6d3c5088716b: Pushed 
+e4d0d3250d34: Pushed 
+ca361e0dd778: Pushed 
+b16bde879bf1: Pushed 
+8b365afc3730: Pushed 
+42877611f0a9: Pushed 
+ee6b956e2555: Pushed 
+abad59d5f402: Pushed 
+d751d7402017: Layer already exists 
+24302eb7d908: Layer already exists 
+02: digest: sha256:032b0625597cb6eeb491359d89c354cd2832a6b334d58e90eb712120bc68468b size: 3227
+(base) vuola@Markuss-MacBook-Air backend % cd ..
+(base) vuola@Markuss-MacBook-Air Exercise1_13 % kubectl apply -f manifests/
+deployment.apps/project-dep created
+ingress.networking.k8s.io/project-ingress created
+persistentvolume/example-pv created
+persistentvolumeclaim/image-claim created
+service/project-svc created
+
+CONTAINER log
+
+Server started at port 8081
+2022-07-14 12:19:07,384 INFO supervisord started with pid 1
+2022-07-14 12:19:08,423 INFO spawned: 'nginx' with pid 8
+2022-07-14 12:19:08,447 INFO spawned: 'php-fpm' with pid 9
+2022-07-14 12:19:08,456 INFO reaped unknown pid 7 (exit status 0)
+[14-Jul-2022 12:19:08] NOTICE: fpm is running, pid 9
+[14-Jul-2022 12:19:08] NOTICE: ready to handle connections
+2022-07-14 12:19:09,626 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2022-07-14 12:19:09,626 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+10.42.0.3 - - [14/Jul/2022:12:19:38 +0000] "GET / HTTP/1.1" 403 125 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.1.0" 0.000 - . -
+2022/07/14 12:19:38 [error] 11#11: *1 directory index of "/var/www/html/" is forbidden, client: 10.42.0.3, server: _, request: "GET / HTTP/1.1", host: "localhost:8081"
+2022/07/14 12:19:56 [error] 11#11: *1 directory index of "/var/www/html/" is forbidden, client: 10.42.0.3, server: _, request: "GET / HTTP/1.1", host: "localhost:8081"
+10.42.0.3 - - [14/Jul/2022:12:19:56 +0000] "GET / HTTP/1.1" 403 125 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.1.0" 0.000 - . -
+10.42.0.3 - - [14/Jul/2022:12:19:57 +0000] "GET / HTTP/1.1" 403 125 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.1.0" 0.000 - . -
+2022/07/14 12:19:57 [error] 11#11: *1 directory index of "/var/www/html/" is forbidden, client: 10.42.0.3, server: _, request: "GET / HTTP/1.1", host: "localhost:8081"
+10.42.0.3 - - [14/Jul/2022:12:20:03 +0000] "GET /add.php HTTP/1.1" 200 923 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.0.1" 0.010 0.010 . -
+10.42.0.3 - - [14/Jul/2022:12:20:03 +0000] "GET /css/style.css HTTP/1.1" 200 203 "http://localhost:8081/add.php" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.0.1" 0.000 - . -
+10.42.0.3 - - [14/Jul/2022:12:20:04 +0000] "GET /picture.php HTTP/1.1" 200 168201 "http://localhost:8081/add.php" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.2.0" 0.575 0.575 . -
+10.42.0.3 - - [14/Jul/2022:12:20:49 +0000] "GET /add.php HTTP/1.1" 200 923 "-" "curl/7.79.1" "10.42.1.0" 0.007 0.006 . -
+
+RESPONSE FROM SERVICE
+
+(base) vuola@Markuss-MacBook-Air Exercise1_13 % curl localhost:8081/add.php
+<html>
+
+<head>
+        <meta http-equiv="Content-Type"
+                content="text/html; charset=UTF-8">
+
+        <title>Add List</title>
+
+        <link rel="stylesheet" href=
+"https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/style.css">
+
+    <style>
+    * {
+        box-sizing: border-box;
+    }
+
+    /* Create two columns that float next to each other */
+    .column1 {
+        float: left;
+        width: 30%;
+        padding: 100px;
+    }
+
+    .column2 {
+        float: left;
+        width: 70%;
+        padding: 100px;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+    </style>
+
+</head>
+
+<body>
+        <div class="container mt-5">
+                <h1>Add Task</h1>
+                <form action="add.php" method="POST">
+
+                        <div class="form-group">
+                                <label>Description</label>
+                                <input type="text"
+                                        class="form-control"
+                    maxlength="140"
+                                        placeholder="Description"
+                                        name="description" />
+                        </div>
+
+                        <div class="form-group">
+                                <label>Item owner</label>
+                                <input type="text"
+                    maxlength="70"
+                                        class="form-control"
+                                        placeholder="Item owner"
+                                        name="owner" />
+                        </div>
+
+                        <div class="form-group">
+                                <label>Item status</label>
+                                <select class="form-control"
+                                        name="status">
+                                        <option value="0">
+                                                NOT STARTED
+                                        </option>
+                                        <option value="1">
+                                                ONGOING
+                                        </option>
+                                        <option value="2">
+                                                COMPLETE
+                                        </option>
+                                </select>
+                        </div>
+
+                        <div class="form-group">
+                                <label>Creation Date</label>
+                                <input type="date"
+                                        class="form-control"
+                                        placeholder="Date"
+                                        name="date">
+                        </div>
+                        <div class="form-group">
+                                <input type="submit"
+                                        value="Add"
+                                        class="btn btn-danger"
+                                        name="btn">
+                        </div>
+</div>
+
+
+<div id="lowsection">
+    <div class="column1" id="picture">
+        <form>
+            <img src="picture.php" alt="Picture of the day" width="200" height="200">    
+        </form>
+    </div>
+    <div class="column2" id="tasklist">
+            <h3>Latest entries</h3>
+        <div> plan a</div>
+        <div> do b</div>
+        <div> check c</div>
+        <div> act d</div>               
+        </div>
+</div>
+
+</body>
+</html>
+(base) vuola@Markuss-MacBook-Air Exercise1_13 % 
