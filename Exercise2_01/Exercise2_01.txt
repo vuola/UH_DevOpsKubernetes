@@ -1,0 +1,234 @@
+COMMANDS
+
+
+(base) vuola@Markuss-MacBook-Air e201 % kubectl apply -f manifests/                         
+deployment.apps/logoutput-dep created
+deployment.apps/pingpong-dep created
+ingress.networking.k8s.io/logoutput-ingress created
+service/logoutput-svc created
+service/pingpong-svc created
+
+(base) vuola@Markuss-MacBook-Air logoutput % docker build . -t vuolahti/logoutput:05 --no-cache          
+[+] Building 74.2s (28/28) FINISHED                                                                                                                                                                                  
+ => [internal] load build definition from Dockerfile                                                                                                                                                            0.1s
+ => => transferring dockerfile: 37B                                                                                                                                                                             0.0s
+ => [internal] load .dockerignore                                                                                                                                                                               0.0s
+ => => transferring context: 2B                                                                                                                                                                                 0.0s
+ => [internal] load metadata for docker.io/library/alpine:3.16                                                                                                                                                  2.3s
+ => [auth] library/alpine:pull token for registry-1.docker.io                                                                                                                                                   0.0s
+ => [internal] load build context                                                                                                                                                                               0.1s
+ => => transferring context: 402B                                                                                                                                                                               0.0s
+ => CACHED [build 1/7] FROM docker.io/library/alpine:3.16@sha256:686d8c9dfa6f3ccfc8230bc3178d23f84eeaf7e457f36f271ab1acc53015037c                                                                               0.0s
+ => CACHED [stage-1  2/16] WORKDIR /var/www/html                                                                                                                                                                0.0s
+ => [build 2/7] RUN apk add --no-cache   build-base   cmake   fmt-dev                                                                                                                                          31.6s
+ => [build 3/7] WORKDIR /var/www/html                                                                                                                                                                           0.1s
+ => [build 4/7] COPY CMakeLists.txt .                                                                                                                                                                           0.2s 
+ => [build 5/7] COPY main.cpp .                                                                                                                                                                                 0.1s 
+ => [build 6/7] RUN cmake -S . -B ./build                                                                                                                                                                       1.8s 
+ => [build 7/7] RUN cmake --build build                                                                                                                                                                        14.8s 
+ => [stage-1  3/16] COPY --from=build /var/www/html/build/logger ./build/logger                                                                                                                                 0.3s 
+ => [stage-1  4/16] RUN chmod a+x ./build/logger                                                                                                                                                                0.9s 
+ => [stage-1  5/16] RUN apk add --no-cache   curl   nginx   php81   php81-ctype   php81-curl   php81-dom   php81-fpm   php81-gd   php81-intl   php81-mbstring   php81-mysqli   php81-opcache   php81-openssl   15.3s 
+ => [stage-1  6/16] RUN ln -s /usr/bin/php81 /usr/bin/php                                                                                                                                                       0.5s 
+ => [stage-1  7/16] COPY config/nginx.conf /etc/nginx/nginx.conf                                                                                                                                                0.1s 
+ => [stage-1  8/16] COPY config/fpm-pool.conf /etc/php81/php-fpm.d/www.conf                                                                                                                                     0.1s 
+ => [stage-1  9/16] COPY config/php.ini /etc/php81/conf.d/custom.ini                                                                                                                                            0.1s 
+ => [stage-1 10/16] COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf                                                                                                                        0.0s 
+ => [stage-1 11/16] RUN chown -R nobody.nobody /var/www/html /run /var/lib/nginx /var/log/nginx                                                                                                                 0.5s 
+ => [stage-1 12/16] COPY --chown=nobody html/ /var/www/html/                                                                                                                                                    0.1s
+ => [stage-1 13/16] RUN mkdir /tmp/kube                                                                                                                                                                         0.9s
+ => [stage-1 14/16] RUN chmod a+rw /tmp/kube/                                                                                                                                                                   0.6s
+ => [stage-1 15/16] COPY myscript /var/www/script                                                                                                                                                               0.1s
+ => [stage-1 16/16] RUN chmod a+x /var/www/script/myscript.sh                                                                                                                                                   0.7s
+ => exporting to image                                                                                                                                                                                          2.6s
+ => => exporting layers                                                                                                                                                                                         2.5s
+ => => writing image sha256:2bff1d689cfa3229469191361d147511cdc3f82bbf140ea8c754d7531e5b792e                                                                                                                    0.0s
+ => => naming to docker.io/vuolahti/logoutput:05                                                                                                                                                                0.0s
+Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
+
+(base) vuola@Markuss-MacBook-Air logoutput % docker push vuolahti/logoutput:05
+The push refers to repository [docker.io/vuolahti/logoutput]
+3ef95d13d22d: Pushed 
+d31d89f38580: Pushed 
+03264f65e1e8: Pushed 
+614b03ff3e40: Pushed 
+5b7d0bca8b08: Pushed 
+6adbc7ce1ce3: Pushed 
+a34e698e7c5a: Pushed 
+806e08bb8f01: Pushed 
+6d5f698125f1: Pushed 
+72dc652e3c53: Pushed 
+ac70dbd766b5: Pushed 
+c93e29526d5f: Pushed 
+30ec9db6c53f: Pushed 
+1da6de35b55f: Pushed 
+d751d7402017: Layer already exists 
+24302eb7d908: Layer already exists 
+05: digest: sha256:df7ef9aaf931f6488a5377de74094de1448cc4d3691e6a279b42a6adc0ce7306 size: 3646
+
+(base) vuola@Markuss-MacBook-Air e201 % kubectl apply -f manifests/deployment_logoutput.yaml 
+deployment.apps/logoutput-dep configured
+
+(base) vuola@Markuss-MacBook-Air e201 % kubectl exec svc/logoutput-svc -- cat /var/www/html/index.php            
+<?php
+
+    $ch = curl_init();
+  
+    $url = "http://pingpong-svc:2346/index.php";
+    $dataArray = ['num' => 'true'];
+
+    $filename = "label.txt"; // This is at root of the file using this script.
+
+    $data = http_build_query($dataArray);
+
+    $getUrl = $url."?".$data;
+
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_URL, $getUrl);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 80);
+   
+    $response = curl_exec($ch);
+     
+
+    if (curl_error($ch)) {
+        echo 'Request Error:' . curl_error($ch);
+    } else {
+        if (file_exists($filename)) {
+            $fd = fopen ($filename, "r"); // opening the file in read mode
+            $contents = fread ($fd, filesize($filename)); // reading the content of the file
+            fclose ($fd); // Closing the file pointer
+            echo "$contents "; 
+            echo '<br />';
+        }
+        echo "Ping / Pongs: " . $response;
+    }
+
+    curl_close($ch);
+
+?>%                                                                                                                                                                                                                  
+(base) vuola@Markuss-MacBook-Air e201 % kubectl exec svc/logoutput-svc -- curl localhost:8080/hello.html
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   117  100   117    0     0  21142      <html>-:-- --:--:-- --:--:--     0
+    <head>
+        <body>
+            <h1>Hello from logoutput-test !</h1>
+        </body>
+    </head>
+</html>0 --:--:-- --:--:-- --:--:-- 23400
+
+(base) vuola@Markuss-MacBook-Air e201 % kubectl exec svc/logoutput-svc -- curl localhost:8080/index.php
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     02022-07-14 20:13:06Z UHR7SLYNvrgJWIoCEnOujtVKBy1b8Qcd
+100    76    0    76    0     0   2551      0 --:--:-- --:--:-- --:--:--  2620
+ <br />Ping / Pongs: 8%                                                                                                                                                                                              
+
+
+(base) vuola@Markuss-MacBook-Air pingpong % docker build . -t vuolahti/pingpong:04 --no-cache
+[+] Building 37.4s (20/20) FINISHED                                                                                                                                                                                  
+ => [internal] load build definition from Dockerfile                                                                                                                                                            0.2s
+ => => transferring dockerfile: 2.04kB                                                                                                                                                                          0.1s
+ => [internal] load .dockerignore                                                                                                                                                                               0.1s
+ => => transferring context: 2B                                                                                                                                                                                 0.0s
+ => [internal] load metadata for docker.io/library/alpine:3.16                                                                                                                                                  3.1s
+ => [auth] library/alpine:pull token for registry-1.docker.io                                                                                                                                                   0.0s
+ => [ 1/14] FROM docker.io/library/alpine:3.16@sha256:686d8c9dfa6f3ccfc8230bc3178d23f84eeaf7e457f36f271ab1acc53015037c                                                                                          0.0s
+ => [internal] load build context                                                                                                                                                                               0.1s
+ => => transferring context: 6.86kB                                                                                                                                                                             0.1s
+ => CACHED [ 2/14] WORKDIR /var/www/html                                                                                                                                                                        0.0s
+ => [ 3/14] RUN apk add --no-cache   curl   nginx   php81   php81-ctype   php81-curl   php81-dom   php81-fpm   php81-gd   php81-intl   php81-mbstring   php81-mysqli   php81-opcache   php81-openssl   php81-  25.1s
+ => [ 4/14] RUN ln -s /usr/bin/php81 /usr/bin/php                                                                                                                                                               1.4s 
+ => [ 5/14] COPY config/nginx.conf /etc/nginx/nginx.conf                                                                                                                                                        0.1s 
+ => [ 6/14] COPY config/fpm-pool.conf /etc/php81/php-fpm.d/www.conf                                                                                                                                             0.1s 
+ => [ 7/14] COPY config/php.ini /etc/php81/conf.d/custom.ini                                                                                                                                                    0.1s 
+ => [ 8/14] COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf                                                                                                                                0.1s 
+ => [ 9/14] RUN chown -R nobody.nobody /var/www/html /run /var/lib/nginx /var/log/nginx                                                                                                                         0.8s 
+ => [10/14] COPY --chown=nobody html/ /var/www/html/                                                                                                                                                            0.1s
+ => [11/14] RUN mkdir /tmp/kube                                                                                                                                                                                 0.7s
+ => [12/14] RUN chmod a+rw /tmp/kube/                                                                                                                                                                           1.5s
+ => [13/14] COPY myscript /var/www/script                                                                                                                                                                       0.1s
+ => [14/14] RUN chmod a+x /var/www/script/myscript.sh                                                                                                                                                           0.6s
+ => exporting to image                                                                                                                                                                                          2.7s
+ => => exporting layers                                                                                                                                                                                         2.7s
+ => => writing image sha256:cd234e6a515dc032ef1ba112d5833fbe9752f4116c38a4ee559bc27e301ddacb                                                                                                                    0.0s
+ => => naming to docker.io/vuolahti/pingpong:04                                                                                                                                                                 0.0s
+Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
+
+(base) vuola@Markuss-MacBook-Air pingpong % docker push vuolahti/pingpong:04
+The push refers to repository [docker.io/vuolahti/pingpong]
+2f10a493041d: Pushed 
+701fc0b33888: Pushed 
+8318b2c1d6b0: Pushed 
+57e717233340: Pushed 
+d1b6b6b6e96c: Pushed 
+b9308d2453e8: Pushed 
+9a4d7c13013f: Pushed 
+b826f8a98d3c: Pushed 
+cfbc08ef7dc4: Pushed 
+ae3bc35baa12: Pushed 
+a30e922af24c: Pushed 
+a1e397290b50: Pushed 
+d751d7402017: Layer already exists 
+24302eb7d908: Layer already exists 
+04: digest: sha256:7cdd7802104d041a4c2218c27f195410a13dcb5b19d41db17db1523d1b6ce8ad size: 3226
+
+
+CONTAINER LOGS
+
+vuolahti/logoutput:05
+
+2022-07-14 20:09:26,781 INFO supervisord started with pid 1
+2022-07-14 20:09:27,785 INFO spawned: 'nginx' with pid 8
+2022-07-14 20:09:27,790 INFO spawned: 'php-fpm' with pid 9
+[14-Jul-2022 20:09:27] NOTICE: fpm is running, pid 9
+[14-Jul-2022 20:09:27] NOTICE: ready to handle connections
+2022-07-14 20:09:28,996 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2022-07-14 20:09:28,996 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+127.0.0.1 - - [14/Jul/2022:20:11:12 +0000] "GET /hello.html HTTP/1.1" 200 117 "-" "curl/7.83.1" "-" 0.000 - . -
+127.0.0.1 - - [14/Jul/2022:20:11:28 +0000] "GET /index.php HTTP/1.1" 200 87 "-" "curl/7.83.1" "-" 0.099 0.100 . -
+127.0.0.1 - - [14/Jul/2022:20:12:49 +0000] "GET /index.php HTTP/1.1" 200 87 "-" "curl/7.83.1" "-" 0.019 0.020 . -
+127.0.0.1 - - [14/Jul/2022:20:13:03 +0000] "GET /index.php HTTP/1.1" 200 87 "-" "curl/7.83.1" "-" 0.016 0.016 . -
+127.0.0.1 - - [14/Jul/2022:20:13:08 +0000] "GET /index.php HTTP/1.1" 200 87 "-" "curl/7.83.1" "-" 0.015 0.015 . -
+10.42.1.3 - - [14/Jul/2022:20:14:26 +0000] "GET /index.php HTTP/1.1" 200 107 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.0.0" 0.019 0.019 . -
+10.42.1.3 - - [14/Jul/2022:20:14:29 +0000] "GET /index.php HTTP/1.1" 200 107 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.0.0" 0.005 0.005 . -
+10.42.1.3 - - [14/Jul/2022:20:14:30 +0000] "GET /index.php HTTP/1.1" 200 107 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.0.0" 0.008 0.008 . -
+10.42.1.3 - - [14/Jul/2022:20:14:54 +0000] "GET / HTTP/1.1" 200 108 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.0.0" 0.011 0.011 . -
+10.42.1.3 - - [15/Jul/2022:06:00:56 +0000] "GET / HTTP/1.1" 200 108 "-" "curl/7.79.1" "10.42.2.0" 0.650 0.651 . -
+10.42.1.3 - - [15/Jul/2022:06:01:15 +0000] "GET / HTTP/1.1" 200 108 "-" "curl/7.79.1" "10.42.2.0" 0.043 0.043 . -
+
+
+vuolahti/pingpong:04
+
+Server started at port 8080
+2022-07-15 06:08:37,715 INFO supervisord started with pid 1
+2022-07-15 06:08:38,753 INFO spawned: 'nginx' with pid 7
+2022-07-15 06:08:38,758 INFO spawned: 'php-fpm' with pid 8
+2022-07-15 06:08:38,763 INFO reaped unknown pid 6 (exit status 0)
+[15-Jul-2022 06:08:38] NOTICE: fpm is running, pid 8
+[15-Jul-2022 06:08:38] NOTICE: ready to handle connections
+2022-07-15 06:08:39,961 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2022-07-15 06:08:39,962 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+10.42.1.3 - - [15/Jul/2022:06:09:26 +0000] "GET /pingpong HTTP/1.1" 200 37 "-" "curl/7.79.1" "10.42.0.0" 0.005 0.005 . -
+10.42.1.3 - - [15/Jul/2022:06:09:27 +0000] "GET /pingpong HTTP/1.1" 200 37 "-" "curl/7.79.1" "10.42.1.1" 0.003 0.003 . -
+10.42.1.3 - - [15/Jul/2022:06:09:29 +0000] "GET /pingpong HTTP/1.1" 200 37 "-" "curl/7.79.1" "10.42.2.0" 0.001 0.001 . -
+10.42.1.5 - - [15/Jul/2022:06:09:33 +0000] "GET /index.php?num=true HTTP/1.1" 200 11 "-" "-" "-" 0.001 0.001 . -
+10.42.1.5 - - [15/Jul/2022:06:09:36 +0000] "GET /index.php?num=true HTTP/1.1" 200 11 "-" "-" "-" 0.001 0.000 . -
+
+
+RESPONSE FROM service
+
+(base) vuola@Markuss-MacBook-Air e201 % curl localhost:8081/pingpong
+PONG 0%                                                                                                                                                                                                              
+(base) vuola@Markuss-MacBook-Air e201 % curl localhost:8081/pingpong
+PONG 1%                                                                                                                                                                                                              
+(base) vuola@Markuss-MacBook-Air e201 % curl localhost:8081/pingpong
+PONG 2%                                                                                                                                                                                                              
+(base) vuola@Markuss-MacBook-Air e201 % curl localhost:8081         
+2022-07-15 06:09:33Z UHR7SLYNvrgJWIoCEnOujtVKBy1b8Qcd
+ <br />Ping / Pongs: 3%                                                                                                                                                                                              
+(base) vuola@Markuss-MacBook-Air e201 % curl localhost:8081
+2022-07-15 06:09:33Z UHR7SLYNvrgJWIoCEnOujtVKBy1b8Qcd
+ <br />Ping / Pongs: 3%            
