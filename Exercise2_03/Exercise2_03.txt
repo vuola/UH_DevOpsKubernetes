@@ -1,0 +1,11 @@
+(base) vuola@Markuss-MacBook-Air e201 % kubectl create namespace exercise
+namespace/exercise created
+
+(base) vuola@Markuss-MacBook-Air e201 % kubens exercise
+Context "k3d-k3s-default" modified.
+Active namespace is "exercise".
+
+(base) vuola@Markuss-MacBook-Air e201 % kubectl get po
+NAME                             READY   STATUS    RESTARTS   AGE
+logoutput-dep-6f9b76b5f6-pmlz4   1/1     Running   0          7m1s
+pingpong-dep-55bbb946f8-77f54    1/1     Running   0          7m1s
