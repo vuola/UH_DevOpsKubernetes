@@ -1,0 +1,285 @@
+COMMANDS
+
+(base) vuola@Markuss-MacBook-Air backend % docker build . -t vuolahti/backend:03 --no-cache
+[+] Building 24.8s (20/20) FINISHED                                                                                       
+ => [internal] load build definition from Dockerfile                                                                 0.1s
+ => => transferring dockerfile: 2.04kB                                                                               0.0s
+ => [internal] load .dockerignore                                                                                    0.0s
+ => => transferring context: 2B                                                                                      0.0s
+ => [internal] load metadata for docker.io/library/alpine:3.16                                                       2.6s
+ => [auth] library/alpine:pull token for registry-1.docker.io                                                        0.0s
+ => [internal] load build context                                                                                    0.1s
+ => => transferring context: 29.76kB                                                                                 0.0s
+ => [ 1/14] FROM docker.io/library/alpine:3.16@sha256:686d8c9dfa6f3ccfc8230bc3178d23f84eeaf7e457f36f271ab1acc530150  0.0s
+ => CACHED [ 2/14] WORKDIR /var/www/html                                                                             0.0s
+ => [ 3/14] RUN apk add --no-cache   curl   nginx   php81   php81-ctype   php81-curl   php81-dom   php81-fpm   php  17.3s
+ => [ 4/14] RUN ln -s /usr/bin/php81 /usr/bin/php                                                                    0.7s
+ => [ 5/14] COPY config/nginx.conf /etc/nginx/nginx.conf                                                             0.1s 
+ => [ 6/14] COPY config/fpm-pool.conf /etc/php81/php-fpm.d/www.conf                                                  0.1s 
+ => [ 7/14] COPY config/php.ini /etc/php81/conf.d/custom.ini                                                         0.0s 
+ => [ 8/14] COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf                                     0.0s 
+ => [ 9/14] RUN chown -R nobody.nobody /var/www/html /run /var/lib/nginx /var/log/nginx                              0.4s 
+ => [10/14] COPY --chown=nobody html/ /var/www/html/                                                                 0.1s
+ => [11/14] RUN mkdir /tmp/kube                                                                                      0.4s
+ => [12/14] RUN chmod a+rw /tmp/kube/                                                                                0.5s
+ => [13/14] COPY myscript /var/www/script                                                                            0.1s
+ => [14/14] RUN chmod a+x /var/www/script/myscript.sh                                                                0.4s
+ => exporting to image                                                                                               2.0s
+ => => exporting layers                                                                                              1.9s
+ => => writing image sha256:cda9b9d26949bfdc6108902f3e3e700ad2ab007e912ca1d38cdb4234852cae18                         0.0s
+ => => naming to docker.io/vuolahti/backend:03                                                                       0.0s
+
+Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
+(base) vuola@Markuss-MacBook-Air backend % docker push vuolahti/backend:03
+The push refers to repository [docker.io/vuolahti/backend]
+2c3a5923a2be: Pushed 
+de3bb3cddf79: Pushed 
+1234a19083db: Pushed 
+33744959d4a0: Pushed 
+9b8c40745a6d: Pushed 
+0e6b1d8ffcfb: Pushed 
+970b1c8b0d4d: Pushed 
+4997a972411b: Pushed 
+b71c2ed18b67: Pushed 
+e05fbc57c89b: Pushed 
+07c060a0001e: Pushed 
+1cfee476333c: Pushed 
+d751d7402017: Layer already exists 
+24302eb7d908: Layer already exists 
+03: digest: sha256:12429046eeef5a2a531ea2b9ba7f6596fb51d4d7d1035266b6eee13f2d65f117 size: 3227
+
+(base) vuola@Markuss-MacBook-Air frontend % docker build . -t vuolahti/frontend:03 --no-cache
+[+] Building 24.7s (20/20) FINISHED                                                                                       
+ => [internal] load build definition from Dockerfile                                                                 0.1s
+ => => transferring dockerfile: 2.04kB                                                                               0.0s
+ => [internal] load .dockerignore                                                                                    0.0s
+ => => transferring context: 2B                                                                                      0.0s
+ => [internal] load metadata for docker.io/library/alpine:3.16                                                       1.9s
+ => [auth] library/alpine:pull token for registry-1.docker.io                                                        0.0s
+ => [ 1/14] FROM docker.io/library/alpine:3.16@sha256:686d8c9dfa6f3ccfc8230bc3178d23f84eeaf7e457f36f271ab1acc530150  0.0s
+ => [internal] load build context                                                                                    0.1s
+ => => transferring context: 28.48kB                                                                                 0.0s
+ => CACHED [ 2/14] WORKDIR /var/www/html                                                                             0.0s
+ => [ 3/14] RUN apk add --no-cache   curl   nginx   php81   php81-ctype   php81-curl   php81-dom   php81-fpm   php  18.1s
+ => [ 4/14] RUN ln -s /usr/bin/php81 /usr/bin/php                                                                    0.6s
+ => [ 5/14] COPY config/nginx.conf /etc/nginx/nginx.conf                                                             0.1s 
+ => [ 6/14] COPY config/fpm-pool.conf /etc/php81/php-fpm.d/www.conf                                                  0.1s
+ => [ 7/14] COPY config/php.ini /etc/php81/conf.d/custom.ini                                                         0.0s
+ => [ 8/14] COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf                                     0.0s
+ => [ 9/14] RUN chown -R nobody.nobody /var/www/html /run /var/lib/nginx /var/log/nginx                              0.4s
+ => [10/14] COPY --chown=nobody html/ /var/www/html/                                                                 0.1s
+ => [11/14] RUN mkdir /tmp/kube                                                                                      0.4s
+ => [12/14] RUN chmod a+rw /tmp/kube/                                                                                0.5s
+ => [13/14] COPY myscript /var/www/script                                                                            0.1s
+ => [14/14] RUN chmod a+x /var/www/script/myscript.sh                                                                0.4s
+ => exporting to image                                                                                               1.8s
+ => => exporting layers                                                                                              1.8s
+ => => writing image sha256:a4ab0c8f16a17d3fc5128ff148b3ae6604cc32eedfa256cb86d2aff83e181446                         0.0s
+ => => naming to docker.io/vuolahti/frontend:03                                                                      0.0s
+
+Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
+(base) vuola@Markuss-MacBook-Air frontend % docker run -p 5000:8080 vuolahti/frontend:03
+Server started at port 8080
+2022-07-18 07:15:32,764 INFO supervisord started with pid 1
+2022-07-18 07:15:33,767 INFO spawned: 'nginx' with pid 8
+2022-07-18 07:15:33,771 INFO spawned: 'php-fpm' with pid 9
+2022-07-18 07:15:33,772 INFO reaped unknown pid 7 (exit status 0)
+[18-Jul-2022 07:15:33] NOTICE: fpm is running, pid 9
+[18-Jul-2022 07:15:33] NOTICE: ready to handle connections
+2022-07-18 07:15:34,854 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2022-07-18 07:15:34,854 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+172.17.0.1 - - [18/Jul/2022:07:16:05 +0000] "GET /hello.html HTTP/1.1" 200 111 "-" "curl/7.79.1" "-" 0.000 - . -
+^C2022-07-18 07:16:32,788 WARN received SIGINT indicating exit request
+2022-07-18 07:16:32,789 INFO waiting for nginx, php-fpm to die
+[18-Jul-2022 07:16:32] NOTICE: Terminating ...
+[18-Jul-2022 07:16:32] NOTICE: exiting, bye-bye!
+2022-07-18 07:16:32,807 INFO stopped: php-fpm (exit status 0)
+2022-07-18 07:16:32,837 INFO stopped: nginx (exit status 0)
+(base) vuola@Markuss-MacBook-Air frontend % docker push vuolahti/frontend:03
+The push refers to repository [docker.io/vuolahti/frontend]
+868fe57ecd32: Pushed 
+382d6ffb3f38: Pushed 
+75f330ad1ba3: Pushed 
+a28dfb698987: Pushed 
+904fd55053bd: Pushed 
+dd1288a87f20: Pushed 
+38a47ed1be33: Pushed 
+ebe570180e55: Pushed 
+092558330882: Pushed 
+1ad3b968be6f: Pushed 
+6b4dd2fc8816: Pushed 
+f7291de9f5c8: Pushed 
+d751d7402017: Mounted from vuolahti/backend 
+24302eb7d908: Mounted from vuolahti/backend 
+03: digest: sha256:8c80164606bd1ca2d7aaf4bf51f52098a09eb6369b04f771d198e861fdf5809f size: 3227
+
+CONTAINER LOGS:
+
+vuolahti/backend:03
+
+Server started at port 8080
+2022-07-18 07:20:20,796 INFO supervisord started with pid 1
+2022-07-18 07:20:21,801 INFO spawned: 'nginx' with pid 7
+2022-07-18 07:20:21,806 INFO spawned: 'php-fpm' with pid 8
+2022-07-18 07:20:21,808 INFO reaped unknown pid 6 (exit status 0)
+[18-Jul-2022 07:20:21] NOTICE: fpm is running, pid 8
+[18-Jul-2022 07:20:21] NOTICE: ready to handle connections
+2022-07-18 07:20:22,862 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2022-07-18 07:20:22,862 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+
+vuolahti/frontend:03
+
+Server started at port 8080
+2022-07-18 07:20:15,290 INFO supervisord started with pid 1
+2022-07-18 07:20:16,299 INFO spawned: 'nginx' with pid 8
+2022-07-18 07:20:16,321 INFO spawned: 'php-fpm' with pid 9
+2022-07-18 07:20:16,323 INFO reaped unknown pid 7 (exit status 0)
+[18-Jul-2022 07:20:16] NOTICE: fpm is running, pid 9
+[18-Jul-2022 07:20:16] NOTICE: ready to handle connections
+2022-07-18 07:20:17,443 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2022-07-18 07:20:17,443 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+
+CONNECTVITY TESTING
+
+(base) vuola@Markuss-MacBook-Air 10 % curl localhost:8081/hello.html                  
+<html>
+    <head>
+        <body>
+            <h1>Hello from frontend !</h1>
+        </body>
+    </head>
+</html>%
+
+(base) vuola@Markuss-MacBook-Air 10 % kubectl exec svc/frontend-svc -- curl http://backend-svc:2346/api/read_file.php
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  1274    0  1274    0     0  35838      0 --:--:-- --:--:-- --:--:-- 36400
+[{"id":"9","description":"TEST 0009","owner":"Markus","status":"NOT STARTED","created":"2022\/07\/16"},{"id":"10","description":"TEST 0010","owner":"Markus","status":"NOT STARTED","created":"2022\/07\/16"},{"id":"11","description":"TEST 0011","owner":"Markus","status":"NOT STARTED","created":"2022\/07\/16"},{"id":"12","description":"Pay the bills","owner":"Artist","status":"NOT STARTED","created":"2022-07-17"},{"id":"13","description":"Clean and melt down the fridge","owner":"Markus","status":"COMPLETE","created":"2022-07-17"},{"id":"14","description":"Feed Simo the hedgehog","owner":"Veera","status":"COMPLETE","created":"2022-07-18"},{"id":"15","description":"Take bike to maintenance","owner":"Markus","status":"ONGOING","created":"2022-07-17"},{"id":"16","description":"Pack the backpack","owner":"Markus","status":"COMPLETE","created":"2022-07-17"},{"id":"17","description":"Do the dishes","owner":"Veera","status":"NOT STARTED","created":"2022-07-17"},{"id":"18","description":"Get chicken for kittens","owner":"Markus","status":"COMPLETE","created":"2022-07-17"},{"id":"19","description":"Exercise","owner":"Markus","status":"ONGOING","created":"2022-07-17"},{"id":"20","description":"Test 1327","owner":"Daemon","status":"NOT STARTED","created":"2022-07-17"}]%                       
+
+
+SERVICE RESPONSE 
+
+(base) vuola@Markuss-MacBook-Air 10 % curl localhost:8081/add.php
+
+
+<html>
+
+<head>
+        <meta http-equiv="Content-Type"
+                content="text/html; charset=UTF-8">
+
+        <title>Task Adding Frontend</title>
+
+        <link rel="stylesheet" href=
+"https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/style.css">
+
+    <style>
+    * {
+        box-sizing: border-box;
+    }
+
+    /* Create two page bottom columns that float next to each other */
+    .column1 {
+        float: left;
+        width: 30%;
+        padding: 100px;
+    }
+
+    .column2 {
+        float: left;
+        width: 70%;
+        padding: 100px;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+    </style>
+</head>
+
+<body>
+        <div class="container mt-5">
+                <h1>Add Task</h1>
+                <form action="add.php" method="POST">
+
+                        <div class="form-group">
+                                <label>Description</label>
+                                <input type="text"
+                                        class="form-control"
+                    maxlength="140"
+                                        placeholder="Description"
+                                        name="description" />
+                        </div>
+
+                        <div class="form-group">
+                                <label>Item owner</label>
+                                <input type="text"
+                    maxlength="70"
+                                        class="form-control"
+                                        placeholder="Item owner"
+                                        name="owner" />
+                        </div>
+
+                        <div class="form-group">
+                                <label>Item status</label>
+                                <select class="form-control"
+                                        name="status">
+                                        <option value="NOT STARTED">
+                                                NOT STARTED
+                                        </option>
+                                        <option value="ONGOING">
+                                                ONGOING
+                                        </option>
+                                        <option value="COMPLETE">
+                                                COMPLETE
+                                        </option>
+                                </select>
+                        </div>
+
+                        <div class="form-group">
+                                <label>Creation Date</label>
+                                <input type="date"
+                                        class="form-control"
+                                        value="2022-07-18"
+                                        name="created">
+                        </div>
+                        <div class="form-group">
+                                <input type="submit"
+                                        value="Add"
+                                        class="btn btn-danger"
+                                        name="btn">
+                        </div>
+</div>
+
+
+<div id="lowsection">
+    <div class="column1" id="picture">
+        <form>
+            <img src="picture.php" alt="Picture of the day" width="200" height="200">    
+        </form>
+    </div>
+    <div class="column2" id="tasklist">
+            <h3>Latest entries</h3>
+                                                <div> 
+                                        Pelasta reki                            </div>
+                                                        <div> 
+                                        Test 1327                               </div>
+                                                        <div> 
+                                        Exercise                                </div>
+                                                        <div> 
+                                        Get chicken for kittens                         </div>
+                                                        <div> 
+                                        Do the dishes                           </div>
+                                                        <div> 
+                                        Pack the backpack                               </div>
+                                                        <div> 
+                                        Take bike to maintenance                                </div>
+                                </div>
+</div>
+
+</body>
+</html>
