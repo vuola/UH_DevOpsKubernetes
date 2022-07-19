@@ -55,16 +55,16 @@ COPY myscript /var/www/script
 RUN chmod a+x /var/www/script/myscript.sh
 
 # Start message variables 
-ARG _PORT_=8080
+ARG _PORT_=8081
 ENV PORT=${_PORT_}
-ARG _NGINX_PORT_=8080
+ARG _NGINX_PORT_=8081
 ENV NGINX_PORT=${_NGINX_PORT_}
 
 # Switch to use a non-root user from here on
 USER nobody
 
 # Expose the port nginx is reachable on
-EXPOSE 8080
+EXPOSE 8081
 
 # Let supervisord start nginx & php-fpm
 # CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

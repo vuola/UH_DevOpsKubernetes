@@ -18,3 +18,7 @@ spec:
       containers:
         - name: backend
           image: vuolahti/backend:03
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: database-keys

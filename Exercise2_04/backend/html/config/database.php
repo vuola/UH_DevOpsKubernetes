@@ -1,11 +1,20 @@
-<?php 
+<?php
+
     class Database {
-        private $host = "127.0.0.1";
-        private $database_name = "phpapidb";
-        private $username = "root";
-        private $password = "";
+        private $host;
+        private $database_name;
+        private $username;
+        private $password;
 
         public $conn;
+
+        // Db connection
+        public function __construct(){
+            $this->host = base64_decode($_ENV['DATABASE_HOST']);
+            $this->database_name = base64_decode($_ENV['DATABASE_NAME']);
+            $this->username = base64_decode($_ENV['DATABASE_USER']);
+            $this->password = base64_decode($_ENV['DATABASE_PASSWORD']);
+        }
 
         public function getConnection(){
             $this->conn = null;

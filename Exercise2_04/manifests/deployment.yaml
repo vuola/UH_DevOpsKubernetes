@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: project
+  name: taskproject-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taskproject
+  template:
+    metadata:
+      labels:
+        app: taskproject
+    spec:
+      securityContext:
+        fsGroup: 2000
+      containers:
+        - name: frontend-taskproject
+          image: vuolahti/frontend:03
+          ports:
+          - containerPort: 8080
+            name: frontend-port
+          imagePullPolicy: Always
+        - name: backend-taskproject
+          image: vuolahti/backend:03
+          ports:
+          - containerPort: 8081
+            name: backend-port
+          imagePullPolicy: Always
