@@ -16,9 +16,3 @@ project
 (base) vuola@Markuss-MacBook-Air 11 % kubectl get po
 No resources found in project namespace.
 
-(base) vuola@Markuss-MacBook-Air 11 % kubectl apply -f manifests/
-deployment.apps/backend-dep created
-deployment.apps/frontend-dep created
-ingress.networking.k8s.io/taskservice-ingress created
-service/backend-svc created
-service/frontend-svc created
