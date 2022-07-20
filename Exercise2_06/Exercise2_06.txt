@@ -1,0 +1,162 @@
+COMMANDS
+
+[logoutput] docker build . -t vuolahti/logoutput:06 --no-cache                                                        
+[+] Building 132.6s (28/28) FINISHED                                                                                   
+ => [internal] load build definition from Dockerfile                                                              0.2s
+ => => transferring dockerfile: 2.57kB                                                                            0.1s
+ => [internal] load .dockerignore                                                                                 0.1s
+ => => transferring context: 2B                                                                                   0.0s
+ => [internal] load metadata for docker.io/library/alpine:3.16                                                    2.5s
+ => [auth] library/alpine:pull token for registry-1.docker.io                                                     0.0s
+ => [internal] load build context                                                                                 0.2s
+ => => transferring context: 9.04kB                                                                               0.1s
+ => CACHED [build 1/7] FROM docker.io/library/alpine:3.16@sha256:7580ece7963bfa863801466c0a488f11c86f85d9988051a  0.0s
+ => CACHED [stage-1  2/16] WORKDIR /var/www/html                                                                  0.0s
+ => [build 2/7] RUN apk add --no-cache   build-base   cmake   fmt-dev                                            53.9s
+ => [build 3/7] WORKDIR /var/www/html                                                                             0.3s 
+ => [build 4/7] COPY CMakeLists.txt .                                                                             0.1s 
+ => [build 5/7] COPY main.cpp .                                                                                   0.1s 
+ => [build 6/7] RUN cmake -S . -B ./build                                                                         2.4s 
+ => [build 7/7] RUN cmake --build build                                                                          36.2s 
+ => [stage-1  3/16] COPY --from=build /var/www/html/build/logger ./build/logger                                   0.1s 
+ => [stage-1  4/16] RUN chmod a+x ./build/logger                                                                  1.7s
+ => [stage-1  5/16] RUN apk add --no-cache   curl   nginx   php81   php81-ctype   php81-curl   php81-dom   php8  28.2s
+ => [stage-1  6/16] RUN ln -s /usr/bin/php81 /usr/bin/php                                                         1.0s
+ => [stage-1  7/16] COPY config/nginx.conf /etc/nginx/nginx.conf                                                  0.1s
+ => [stage-1  8/16] COPY config/fpm-pool.conf /etc/php81/php-fpm.d/www.conf                                       0.1s
+ => [stage-1  9/16] COPY config/php.ini /etc/php81/conf.d/custom.ini                                              0.1s
+ => [stage-1 10/16] COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf                          0.1s
+ => [stage-1 11/16] RUN chown -R nobody.nobody /var/www/html /run /var/lib/nginx /var/log/nginx                   0.5s
+ => [stage-1 12/16] COPY --chown=nobody html/ /var/www/html/                                                      0.1s
+ => [stage-1 13/16] RUN mkdir /tmp/kube                                                                           0.5s
+ => [stage-1 14/16] RUN chmod a+rw /tmp/kube/                                                                     0.6s
+ => [stage-1 15/16] COPY myscript /var/www/script                                                                 0.1s
+ => [stage-1 16/16] RUN chmod a+x /var/www/script/myscript.sh                                                     0.5s
+ => exporting to image                                                                                            2.5s
+ => => exporting layers                                                                                           2.5s
+ => => writing image sha256:fbec40df7046045111020939e096d0a2b96d594ecf3431e94c823b54fe735389                      0.0s
+ => => naming to docker.io/vuolahti/logoutput:06                                                                  0.0s
+Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
+
+[pingpong] docker build . -t vuolahti/pingpong:05 --no-cache                                                    
+[+] Building 44.2s (20/20) FINISHED                                                                              
+ => [internal] load build definition from Dockerfile                                                        0.1s
+ => => transferring dockerfile: 1.99kB                                                                      0.0s
+ => [internal] load .dockerignore                                                                           0.0s
+ => => transferring context: 2B                                                                             0.0s
+ => [internal] load metadata for docker.io/library/alpine:3.16                                              2.4s
+ => [auth] library/alpine:pull token for registry-1.docker.io                                               0.0s
+ => [ 1/14] FROM docker.io/library/alpine:3.16@sha256:7580ece7963bfa863801466c0a488f11c86f85d9988051a9f9c6  0.0s
+ => [internal] load build context                                                                           0.1s
+ => => transferring context: 6.86kB                                                                         0.0s
+ => CACHED [ 2/14] WORKDIR /var/www/html                                                                    0.0s
+ => [ 3/14] RUN apk add --no-cache   curl   nginx   php81   php81-ctype   php81-curl   php81-dom   php81-  30.5s
+ => [ 4/14] RUN ln -s /usr/bin/php81 /usr/bin/php                                                           2.7s 
+ => [ 5/14] COPY config/nginx.conf /etc/nginx/nginx.conf                                                    0.2s 
+ => [ 6/14] COPY config/fpm-pool.conf /etc/php81/php-fpm.d/www.conf                                         0.1s 
+ => [ 7/14] COPY config/php.ini /etc/php81/conf.d/custom.ini                                                0.1s 
+ => [ 8/14] COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf                            0.1s 
+ => [ 9/14] RUN chown -R nobody.nobody /var/www/html /run /var/lib/nginx /var/log/nginx                     1.5s 
+ => [10/14] COPY --chown=nobody html/ /var/www/html/                                                        0.1s
+ => [11/14] RUN mkdir /tmp/kube                                                                             0.6s
+ => [12/14] RUN chmod a+rw /tmp/kube/                                                                       0.7s
+ => [13/14] COPY myscript /var/www/script                                                                   0.2s
+ => [14/14] RUN chmod a+x /var/www/script/myscript.sh                                                       0.8s
+ => exporting to image                                                                                      3.9s
+ => => exporting layers                                                                                     3.8s
+ => => writing image sha256:0259ea187df2db353fd18d3b30df8f3bacff3d53ffe4eb476e9a8dcf4235732d                0.0s
+ => => naming to docker.io/vuolahti/pingpong:05                                                             0.0s
+
+[logoutput] docker push vuolahti/logoutput:06                                                                                        
+The push refers to repository [docker.io/vuolahti/logoutput]
+7e18bb3e38bf: Pushed 
+9ba4b6dcdeef: Pushed 
+7917a2fd7bd4: Pushed 
+6f8c909b5b04: Pushed 
+587d71dc024e: Pushed 
+7e8d5273a6f1: Pushed 
+b03e4fcab74c: Pushed 
+fd342f3e0ff0: Pushed 
+dc66514c3117: Pushed 
+1cc7662553ea: Pushed 
+6be61f80f494: Pushed 
+1d3635b01fb2: Pushed 
+ee3693eb9c42: Pushed 
+073e4c3583d6: Pushed 
+30184e85dcac: Mounted from vuolahti/frontend 
+ec34fcc1d526: Mounted from vuolahti/frontend 
+06: digest: sha256:e3968e3ff0c7a01d08184838abd827f4d0b48481614381dfd8ee68e23e385d34 size: 3646
+
+[pingpong] docker push vuolahti/pingpong:05                                                                                          
+The push refers to repository [docker.io/vuolahti/pingpong]
+ccced1fffe84: Pushed 
+16511e410fed: Pushed 
+58ebfb2318df: Pushed 
+738cdfb6303c: Pushed 
+b5bfa00c9724: Pushed 
+693cc1e58bbf: Pushed 
+606e039f4035: Pushed 
+10839b848baf: Pushed 
+34524265d247: Pushed 
+bd6060d499d8: Pushed 
+fdaf647ee98c: Pushed 
+feeb5c327708: Pushed 
+30184e85dcac: Mounted from vuolahti/logoutput 
+ec34fcc1d526: Mounted from vuolahti/logoutput 
+05: digest: sha256:69eb7161d8382996ee68ead8d4c81565af65754f9f5957c10b6a3a3817d76de6 size: 3226
+
+
+[e206] kubectl create -f manifests/configmap.yaml                                                                              
+configmap/logoutputping-conf created
+
+
+CONTAINER LOGS
+
+
+vuolahti/logoutput:06
+
+Server started at port 8080
+2022-07-20 09:14:28,567 INFO supervisord started with pid 1
+2022-07-20 09:14:29,572 INFO spawned: 'nginx' with pid 9
+2022-07-20 09:14:29,604 INFO spawned: 'php-fpm' with pid 10
+2022-07-20 09:14:29,626 INFO reaped unknown pid 8 (exit status 0)
+[20-Jul-2022 09:14:29] NOTICE: fpm is running, pid 10
+[20-Jul-2022 09:14:29] NOTICE: ready to handle connections
+2022-07-20 09:14:30,716 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2022-07-20 09:14:30,717 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+10.42.1.8 - - [20/Jul/2022:09:15:18 +0000] "GET / HTTP/1.1" 200 124 "-" "curl/7.79.1" "10.42.1.1" 0.023 0.023 . -
+10.42.1.8 - - [20/Jul/2022:09:15:30 +0000] "GET / HTTP/1.1" 200 124 "-" "curl/7.79.1" "10.42.2.0" 0.018 0.018 . -
+10.42.1.8 - - [20/Jul/2022:09:15:47 +0000] "GET / HTTP/1.1" 200 124 "-" "curl/7.79.1" "10.42.0.0" 0.130 0.130 . -
+10.42.1.8 - - [20/Jul/2022:09:17:06 +0000] "GET / HTTP/1.1" 200 124 "-" "curl/7.79.1" "10.42.1.1" 0.014 0.014 . -
+10.42.1.8 - - [20/Jul/2022:09:17:09 +0000] "GET / HTTP/1.1" 200 124 "-" "curl/7.79.1" "10.42.2.0" 0.005 0.005 . -
+
+vuolahti/pingpong:05
+
+2022-07-20 09:14:30,811 INFO supervisord started with pid 1
+2022-07-20 09:14:31,816 INFO spawned: 'nginx' with pid 8
+2022-07-20 09:14:31,823 INFO spawned: 'php-fpm' with pid 9
+2022-07-20 09:14:31,824 INFO reaped unknown pid 7 (exit status 0)
+[20-Jul-2022 09:14:31] NOTICE: fpm is running, pid 9
+[20-Jul-2022 09:14:31] NOTICE: ready to handle connections
+2022-07-20 09:14:32,875 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2022-07-20 09:14:32,875 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+10.42.2.1 - - [20/Jul/2022:09:15:18 +0000] "GET /?num=true HTTP/1.1" 200 11 "-" "-" "-" 0.003 0.003 . -
+10.42.2.1 - - [20/Jul/2022:09:15:30 +0000] "GET /?num=true HTTP/1.1" 200 11 "-" "-" "-" 0.005 0.005 . -
+10.42.1.8 - - [20/Jul/2022:09:15:39 +0000] "GET /pingpong HTTP/1.1" 200 37 "-" "curl/7.79.1" "10.42.0.0" 0.002 0.001 . -
+10.42.1.8 - - [20/Jul/2022:09:15:41 +0000] "GET /pingpong HTTP/1.1" 200 37 "-" "curl/7.79.1" "10.42.1.1" 0.002 0.001 . -
+10.42.1.8 - - [20/Jul/2022:09:15:43 +0000] "GET /pingpong HTTP/1.1" 200 37 "-" "curl/7.79.1" "10.42.2.0" 0.001 0.001 . -
+10.42.2.1 - - [20/Jul/2022:09:15:47 +0000] "GET /?num=true HTTP/1.1" 200 11 "-" "-" "-" 0.005 0.004 . -
+
+
+RESPONSE FROM service
+
+[tmp] curl localhost:8081                                                                                                                        
+Hello !
+2022-07-20 09:15:28Z 2u1sZyWI4m3BQEp0xRl6vqFDtaCjKc9b
+ <br />Ping / Pongs: 0%                                                                                                                           [tmp] curl localhost:8081/pingpong                                                                                                               
+PONG 0%                                                                                                                                           [tmp] curl localhost:8081/pingpong                                                                                                               
+PONG 1%                                                                                                                                           [tmp] curl localhost:8081/pingpong                                                                                                               
+PONG 2%                                                                                                                                           [tmp] curl localhost:8081                                                                                                                        
+Hello !
+2022-07-20 09:15:43Z 2u1sZyWI4m3BQEp0xRl6vqFDtaCjKc9b
+ <br />Ping / Pongs: 3%                              

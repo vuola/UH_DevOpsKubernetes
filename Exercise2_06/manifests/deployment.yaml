@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: exercise
+  name: logoutputping-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logoutputping
+  template:
+    metadata:
+      labels:
+        app: logoutputping
+    spec:
+      securityContext:
+        fsGroup: 2000
+      containers:
+        - name: logoutput
+          image: vuolahti/logoutput:06
+          envFrom:
+          - configMapRef:
+              name: logoutputping-conf
+          ports:
+          - containerPort: 8080
+            name: logoutput-port
+          imagePullPolicy: Always
+        - name: pingpong
+          image: vuolahti/pingpong:05
+          ports:
+          - containerPort: 8081
+            name: pingpong-port
+          imagePullPolicy: Always
