@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pingpersistent-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: pingpersistent-svc
+            port:
+              number: 8080
+      - path: /pingpong
+        pathType: Prefix
+        backend:
+          service:
+            name: pingpersistent-svc
+            port:
+              number: 8081
+
