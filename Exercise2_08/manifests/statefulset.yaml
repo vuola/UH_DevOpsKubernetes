@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: taskproject-ss
+  namespace: project
+spec:
+  serviceName: taskproject-svc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tsp
+  template:
+    metadata:
+      labels:
+        app: tsp
+    spec:
+      containers:
+      - name: frontend-taskproject
+        image: vuolahti/frontend:04
+        ports: 
+        - name: frontend-port
+          containerPort: 8080
+        imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: database-keys
+        - configMapRef:
+            name: database-env
+      - name: backend-taskproject
+        image: vuolahti/backend:04
+        ports: 
+        - name: backend-port
+          containerPort: 8081
+        imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: database-keys
+        - configMapRef:
+            name: database-env
+#      - name: adminer
+#        image: adminer
+#        ports: 
+#          - name: dbtool-port
+#            containerPort: 8080
+      - name: mariadb
+        image: mariadb:latest
+        ports:
+        - name: mariadb-port
+          containerPort: 3306
+        envFrom:
+        - secretRef:
+            name: database-keys
+        - configMapRef:
+            name: database-env
+        volumeMounts:
+        - name: mariadb-disk
+          mountPath: /var/lib/mysql
+          subPath: mysql
+        - name: config-map
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: config-map
+        configMap:
+          name: database-sql
+  volumeClaimTemplates:
+  - metadata:
+      name: mariadb-disk
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: local-path
+      resources:
+        requests:
+          storage: 100Mi

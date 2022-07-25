@@ -1,0 +1,15 @@
+# PostgreSQL StatefulSet ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-env
+  namespace: project
+data:
+  MARIADB_DATABASE: taskdb
+  MARIADB_TABLE: taskproject
+  MARIADB_DATA: /var/lib/mysql
+  MARIADB_HOST: taskproject-svc
+  MARIADB_RANDOM_ROOT_PASSWORD: "true"
+  API_HOST: taskproject-svc:8081
+
+  

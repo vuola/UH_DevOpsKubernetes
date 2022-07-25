@@ -1,0 +1,472 @@
+COMMANDS:
+
+[backend] docker build . -t vuolahti/backend:04 --no-cache                  
+[+] Building 16.8s (20/20) FINISHED                                                                                                                                                                                                                     
+ => [internal] load build definition from Dockerfile                                                                                                                                                                                               0.1s
+ => => transferring dockerfile: 2.02kB                                                                                                                                                                                                             0.0s
+ => [internal] load .dockerignore                                                                                                                                                                                                                  0.1s
+ => => transferring context: 2B                                                                                                                                                                                                                    0.0s
+ => [internal] load metadata for docker.io/library/alpine:3.16                                                                                                                                                                                     1.9s
+ => [auth] library/alpine:pull token for registry-1.docker.io                                                                                                                                                                                      0.0s
+ => [ 1/14] FROM docker.io/library/alpine:3.16@sha256:7580ece7963bfa863801466c0a488f11c86f85d9988051a9f9c68cb27f6b7872                                                                                                                             0.0s
+ => [internal] load build context                                                                                                                                                                                                                  0.1s
+ => => transferring context: 907B                                                                                                                                                                                                                  0.0s
+ => CACHED [ 2/14] WORKDIR /var/www/html                                                                                                                                                                                                           0.0s
+ => [ 3/14] RUN apk add --no-cache   curl   nginx   php81   php81-ctype   php81-curl   php81-dom   php81-fpm   php81-gd   php81-intl   php81-mbstring   php81-pdo   php81-pdo_mysql   php81-mysqli   php81-opcache   php81-openssl   php81-phar    8.3s
+ => [ 4/14] RUN ln -s /usr/bin/php81 /usr/bin/php                                                                                                                                                                                                  0.5s
+ => [ 5/14] COPY config/nginx.conf /etc/nginx/nginx.conf                                                                                                                                                                                           0.1s 
+ => [ 6/14] COPY config/fpm-pool.conf /etc/php81/php-fpm.d/www.conf                                                                                                                                                                                0.1s 
+ => [ 7/14] COPY config/php.ini /etc/php81/conf.d/custom.ini                                                                                                                                                                                       0.1s 
+ => [ 8/14] COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf                                                                                                                                                                   0.1s 
+ => [ 9/14] RUN chown -R nobody.nobody /var/www/html /run /var/lib/nginx /var/log/nginx                                                                                                                                                            0.5s
+ => [10/14] COPY --chown=nobody html/ /var/www/html/                                                                                                                                                                                               0.1s
+ => [11/14] RUN mkdir /tmp/kube                                                                                                                                                                                                                    0.6s
+ => [12/14] RUN chmod a+rw /tmp/kube/                                                                                                                                                                                                              0.7s
+ => [13/14] COPY myscript /var/www/script                                                                                                                                                                                                          0.1s
+ => [14/14] RUN chmod a+x /var/www/script/myscript.sh                                                                                                                                                                                              0.5s
+ => exporting to image                                                                                                                                                                                                                             2.7s
+ => => exporting layers                                                                                                                                                                                                                            2.6s
+ => => writing image sha256:11a7f01ffc4adaf2b0189450d3ef5cc3875d3a7eae1fcb9b84c6a8304dc5d0b6                                                                                                                                                       0.0s
+ => => naming to docker.io/vuolahti/backend:04                                                                                                                                                                                                     0.0s
+Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
+
+[backend] docker push vuolahti/backend:04                  
+The push refers to repository [docker.io/vuolahti/backend]
+46a6567a4e3a: Pushed 
+931ac35e380f: Pushed 
+c49dee1c75e5: Pushed 
+8b07c6130f1f: Pushed 
+209286318c7d: Pushed 
+8e41fad4ba75: Pushed 
+039839cb0bc0: Pushed 
+5d35f1866826: Pushed 
+c258ea65be18: Pushed 
+4c0aea36dfb1: Pushed 
+6dcc1b09ebda: Pushed 
+e5bacc8c6df2: Pushed 
+30184e85dcac: Layer already exists 
+ec34fcc1d526: Layer already exists 
+04: digest: sha256:3f7b2a3711a6839c57553f61f8af260b092bcce0876ce5e0e1e7f8c01453c5c5 size: 3227
+
+
+[12] kaf manifests/configmap_sql.yaml                                 
+configmap/database-sql created
+
+[12] kubectl describe configmap database-sql                          
+Name:         database-sql
+Namespace:    project
+Labels:       <none>
+Annotations:  <none>
+
+Data
+====
+init.sql:
+----
+CREATE DATABASE IF NOT EXISTS taskdb;
+USE taskdb;
+CREATE TABLE taskproject (id INT(10) NOT NULL AUTO_INCREMENT, description VARCHAR(140) NOT NULL, owner VARCHAR(70), status VARCHAR(20) NOT NULL, created DATE NOT NULL, PRIMARY KEY (id));
+DEFAULT CHARSET=utf8; 
+INSERT INTO taskproject (id, description, owner, status, created) VALUES (1, 'Buy groceries', 'Markus', 'NOT_STARTED', '2012-06-01 02:12:30');
+INSERT INTO taskproject (id, description, owner, status, created) VALUES (2, 'Start wkd job', 'Ville', 'ONGOING', '2020-02-01 06:22:50');
+
+
+BinaryData
+====
+
+Events:  <none>
+[12] kaf manifests/statefulset.yaml                   
+statefulset.apps/taskproject-ss created
+[12] kubectl delete -f  manifests/configmap_sql.yaml                  
+configmap "database-sql" deleted
+[12] kubectl delete -f  manifests/statefulset.yaml                    
+statefulset.apps "taskproject-ss" deleted
+[12] kaf manifests/configmap_sql.yaml                                 
+configmap/database-sql created
+[12] kubectl describe configmap database-sql                  
+Name:         database-sql
+Namespace:    project
+Labels:       <none>
+Annotations:  <none>
+
+Data
+====
+init.sql:
+----
+CREATE DATABASE IF NOT EXISTS taskdb;
+USE taskdb;
+CREATE TABLE taskproject (id INT(10) NOT NULL AUTO_INCREMENT, description VARCHAR(140) NOT NULL, owner VARCHAR(70), status VARCHAR(20) NOT NULL, created DATE NOT NULL, PRIMARY KEY (id));
+DEFAULT CHARSET=utf8; 
+INSERT INTO taskproject (description, owner, status, created) VALUES ('Buy groceries', 'Markus', 'NOT_STARTED', '2012-06-01 02:12:30');
+INSERT INTO taskproject (description, owner, status, created) VALUES ('Start wkd job', 'Ville', 'ONGOING', '2020-02-01 06:22:50');
+
+
+[12] curl localhost:8081/test.php                                                                                                                                                                                                   
+
+array(3) {
+  [0]=>
+  array(5) {
+    ["id"]=>
+    int(3)
+    ["description"]=>
+    string(16) "Buy train ticket"
+    ["owner"]=>
+    string(6) "Markus"
+    ["status"]=>
+    string(7) "ONGOING"
+    ["created"]=>
+    string(10) "2022-07-25"
+  }
+  [1]=>
+  array(5) {
+    ["id"]=>
+    int(2)
+    ["description"]=>
+    string(13) "Start wkd job"
+    ["owner"]=>
+    string(5) "Ville"
+    ["status"]=>
+    string(7) "ONGOING"
+    ["created"]=>
+    string(10) "2020-02-01"
+  }
+  [2]=>
+  array(5) {
+    ["id"]=>
+    int(1)
+    ["description"]=>
+    string(13) "Buy groceries"
+    ["owner"]=>
+    string(6) "Markus"
+    ["status"]=>
+    string(11) "NOT_STARTED"
+    ["created"]=>
+    string(10) "2012-06-01"
+  }
+}
+                                                                                                                                                                         0.0s
+
+[frontend] docker build . -t vuolahti/frontend:04 --no-cache                                                                                                                                                                        
+[+] Building 15.2s (20/20) FINISHED                                                                                                                                                                                                  
+ => [internal] load build definition from Dockerfile                                                                                                                                                                            0.1s
+ => => transferring dockerfile: 37B                                                                                                                                                                                             0.0s
+ => [internal] load .dockerignore                                                                                                                                                                                               0.0s
+ => => transferring context: 2B                                                                                                                                                                                                 0.0s
+ => [internal] load metadata for docker.io/library/alpine:3.16                                                                                                                                                                  1.5s
+ => [auth] library/alpine:pull token for registry-1.docker.io                                                                                                                                                                   0.0s
+ => [ 1/14] FROM docker.io/library/alpine:3.16@sha256:7580ece7963bfa863801466c0a488f11c86f85d9988051a9f9c68cb27f6b7872                                                                                                          0.0s
+ => [internal] load build context                                                                                                                                                                                               0.1s
+ => => transferring context: 12.46kB                                                                                                                                                                                            0.0s
+ => CACHED [ 2/14] WORKDIR /var/www/html                                                                                                                                                                                        0.0s
+ => [ 3/14] RUN apk add --no-cache   curl   nginx   php81   php81-ctype   php81-curl   php81-dom   php81-fpm   php81-gd   php81-intl   php81-mbstring   php81-mysqli   php81-opcache   php81-openssl   php81-phar   php81-sess  7.2s
+ => [ 4/14] RUN ln -s /usr/bin/php81 /usr/bin/php                                                                                                                                                                               0.7s 
+ => [ 5/14] COPY config/nginx.conf /etc/nginx/nginx.conf                                                                                                                                                                        0.1s 
+ => [ 6/14] COPY config/fpm-pool.conf /etc/php81/php-fpm.d/www.conf                                                                                                                                                             0.1s 
+ => [ 7/14] COPY config/php.ini /etc/php81/conf.d/custom.ini                                                                                                                                                                    0.1s 
+ => [ 8/14] COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf                                                                                                                                                0.3s 
+ => [ 9/14] RUN chown -R nobody.nobody /var/www/html /run /var/lib/nginx /var/log/nginx                                                                                                                                         0.5s 
+ => [10/14] COPY --chown=nobody html/ /var/www/html/                                                                                                                                                                            0.1s
+ => [11/14] RUN mkdir /tmp/kube                                                                                                                                                                                                 0.8s
+ => [12/14] RUN chmod a+rw /tmp/kube/                                                                                                                                                                                           0.5s
+ => [13/14] COPY myscript /var/www/script                                                                                                                                                                                       0.1s
+ => [14/14] RUN chmod a+x /var/www/script/myscript.sh                                                                                                                                                                           0.7s
+ => exporting to image                                                                                                                                                                                                          2.1s
+ => => exporting layers                                                                                                                                                                                                         2.1s
+ => => writing image sha256:a6839245f356610a4b7c8cfa8ad92d6d7f3d16e88e62190ea1cba69baa2f9161                                                                                                                                    0.0s
+ => => naming to docker.io/vuolahti/frontend:04                                                                                                                                                                                 0.0s
+Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
+
+[frontend] docker push vuolahti/frontend:04                                                                                                                                                                                         
+The push refers to repository [docker.io/vuolahti/frontend]
+89f414330c63: Pushed 
+c66f1b5c59b5: Pushed 
+2caf14cdaaed: Pushed 
+b09e793cdc83: Pushed 
+3a6fb772fe6e: Pushed 
+b2d5aa8fb2fb: Pushed 
+238e0b667f92: Pushed 
+5a5b81b60e96: Pushed 
+9f72c72260a0: Pushed 
+8ef0fc6a0204: Pushed 
+d285f11a3cc2: Pushed 
+494f1ac709c2: Pushed 
+30184e85dcac: Layer already exists 
+ec34fcc1d526: Layer already exists 
+04: digest: sha256:69d6782ca057e1c45f76f96496708f219fe0e6c9a151e5d42a4bbce74d8f61a1 size: 3227
+
+[12] kaf manifests                                                                                                                                                                                                                  
+configmap/database-env created
+configmap/database-sql created
+ingress.networking.k8s.io/taskproject-ingress created
+secret/database-keys created
+service/taskproject-svc created
+statefulset.apps/taskproject-ss created
+
+[12] kencrypt                                                                                                                                                                                                                       
+
+[12] kcleanup                                                                                                                                                                                                                       
+               
+CONTAINER LOGS:
+
+vuolahti/backend:04
+
+Server started at port 8081
+2022-07-25 12:43:59,725 INFO supervisord started with pid 1
+2022-07-25 12:44:00,734 INFO spawned: 'nginx' with pid 8
+2022-07-25 12:44:00,765 INFO spawned: 'php-fpm' with pid 9
+2022-07-25 12:44:00,788 INFO reaped unknown pid 7 (exit status 0)
+[25-Jul-2022 12:44:01] NOTICE: fpm is running, pid 9
+[25-Jul-2022 12:44:01] NOTICE: ready to handle connections
+2022-07-25 12:44:02,065 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2022-07-25 12:44:02,066 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+10.42.0.1 - - [25/Jul/2022:12:44:10 +0000] "GET /api/read.php HTTP/1.1" 200 621 "-" "-" "-" 0.012 0.012 . -
+10.42.0.1 - - [25/Jul/2022:12:44:19 +0000] "GET /api/read.php?owner=Pirkko HTTP/1.1" 200 221 "-" "-" "-" 0.004 0.005 . -
+10.42.0.1 - - [25/Jul/2022:12:44:21 +0000] "GET /api/read.php?len=7&owner=Pirkko HTTP/1.1" 200 221 "-" "-" "-" 0.005 0.005 . -
+10.42.0.1 - - [25/Jul/2022:12:44:47 +0000] "GET /api/read.php?len=7 HTTP/1.1" 200 621 "-" "-" "-" 0.005 0.005 . -
+10.42.0.1 - - [25/Jul/2022:12:44:47 +0000] "POST /api/create.php HTTP/1.1" 200 38 "-" "-" "-" 0.005 0.006 . -
+10.42.0.1 - - [25/Jul/2022:12:44:47 +0000] "GET /api/read.php HTTP/1.1" 200 729 "-" "-" "-" 0.005 0.005 . -
+10.42.0.1 - - [25/Jul/2022:12:44:55 +0000] "DELETE /api/delete.php HTTP/1.1" 200 27 "-" "-" "-" 0.009 0.009 . -
+10.42.0.1 - - [25/Jul/2022:12:44:55 +0000] "GET /api/read.php HTTP/1.1" 200 627 "-" "-" "-" 0.010 0.010 . -
+
+vuolahti/frontend:04
+
+Server started at port 8080
+2022-07-25 12:43:55,466 INFO supervisord started with pid 1
+2022-07-25 12:43:56,741 INFO spawned: 'nginx' with pid 8
+2022-07-25 12:43:56,851 INFO spawned: 'php-fpm' with pid 9
+2022-07-25 12:43:56,924 INFO reaped unknown pid 7 (exit status 0)
+2022-07-25 12:43:57,967 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2022-07-25 12:43:57,968 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+[25-Jul-2022 12:43:58] NOTICE: fpm is running, pid 9
+[25-Jul-2022 12:43:58] NOTICE: ready to handle connections
+10.42.1.15 - - [25/Jul/2022:12:44:10 +0000] "GET /index.php HTTP/1.1" 200 885 "http://localhost:8081/update.php?id=6" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.2.0" 0.025 0.026 . -
+10.42.1.15 - - [25/Jul/2022:12:44:19 +0000] "GET /index.php?owner=Pirkko&btn=filter HTTP/1.1" 200 765 "http://localhost:8081/index.php" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.2.0" 0.010 0.010 . -
+10.42.1.15 - - [25/Jul/2022:12:44:21 +0000] "GET /add.php?owner=Pirkko HTTP/1.1" 200 959 "http://localhost:8081/index.php?owner=Pirkko&btn=filter" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.2.0" 0.012 0.012 . -
+2022/07/25 12:44:21 [warn] 11#11: *1 an upstream response is buffered to a temporary file /tmp/fastcgi_temp/0000000001 while reading upstream, client: 10.42.1.15, server: _, request: "GET /picture.php HTTP/1.1", upstream: "fastcgi://unix:/run/php-fpm.sock:", host: "localhost:8081", referrer: "http://localhost:8081/add.php?owner=Pirkko"
+10.42.1.15 - - [25/Jul/2022:12:44:21 +0000] "GET /picture.php HTTP/1.1" 200 310787 "http://localhost:8081/add.php?owner=Pirkko" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.2.0" 0.500 0.493 . -
+10.42.1.15 - - [25/Jul/2022:12:44:47 +0000] "POST /add.php HTTP/1.1" 302 2450 "http://localhost:8081/add.php?owner=Pirkko" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.2.0" 0.020 0.020 . -
+10.42.1.15 - - [25/Jul/2022:12:44:47 +0000] "GET /index.php HTTP/1.1" 200 922 "http://localhost:8081/add.php?owner=Pirkko" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.2.0" 0.011 0.012 . -
+10.42.1.15 - - [25/Jul/2022:12:44:55 +0000] "GET /delete.php?id=1 HTTP/1.1" 302 139 "http://localhost:8081/index.php" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15" "10.42.2.0" 0.020 0.020 . -
+
+mariadb
+
+2022-07-25 12:44:00+00:00 [Note] [Entrypoint]: Entrypoint script for MariaDB Server 1:10.8.3+maria~jammy started.
+2022-07-25 12:44:00+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+2022-07-25 12:44:00+00:00 [Note] [Entrypoint]: Entrypoint script for MariaDB Server 1:10.8.3+maria~jammy started.
+2022-07-25 12:44:01+00:00 [Note] [Entrypoint]: MariaDB upgrade not required
+2022-07-25 12:44:01 0 [Note] mariadbd (server 10.8.3-MariaDB-1:10.8.3+maria~jammy) starting as process 1 ...
+2022-07-25 12:44:01 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+2022-07-25 12:44:01 0 [Note] InnoDB: Using transactional memory
+2022-07-25 12:44:01 0 [Note] InnoDB: Number of transaction pools: 1
+2022-07-25 12:44:01 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2022-07-25 12:44:01 0 [Note] mariadbd: O_TMPFILE is not supported on /tmp (disabling future attempts)
+2022-07-25 12:44:01 0 [Warning] mariadbd: io_uring_queue_init() failed with ENOMEM: try larger memory locked limit, ulimit -l, or https://mariadb.com/kb/en/systemd/#configuring-limitmemlock under systemd (262144 bytes required)
+2022-07-25 12:44:01 0 [Warning] InnoDB: liburing disabled: falling back to innodb_use_native_aio=OFF
+2022-07-25 12:44:01 0 [Note] InnoDB: Initializing buffer pool, total size = 128.000MiB, chunk size = 2.000MiB
+2022-07-25 12:44:01 0 [Note] InnoDB: Completed initialization of buffer pool
+2022-07-25 12:44:01 0 [Note] InnoDB: File system buffers for log disabled (block size=4096 bytes)
+2022-07-25 12:44:01 0 [Note] InnoDB: 128 rollback segments are active.
+2022-07-25 12:44:01 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2022-07-25 12:44:01 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+
+RESPONSE FROM SERVICE:
+
+
+[12] curl localhost:8081                                                                                                                                                                                                            
+
+
+<html>
+
+<head>
+        <meta http-equiv="Content-Type"
+                content="text/html; charset=UTF-8">
+
+        <title>View List</title>
+
+        <link rel="stylesheet" href=
+"https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+        <link rel="stylesheet"
+                href="css/style.css">
+</head>
+
+<body>
+        <div class="container mt-5">
+
+                <!-- top -->
+                <div class="row">
+                        <div class="col-lg-8">
+                                <h1>View Task List</h1>
+                                <a href= "add.php?owner=" > 
+                                        Add Item
+                                </a>
+                        </div>
+                        <div class="col-lg-4">
+                                <div class="row">
+                                        <div class="col-lg-8">
+
+                                                Owner Filtering
+                                                <form method="get" action="">
+                                                        <input type="text"
+                                                                class="form-control"
+                                                                maxlength="70"
+                                                                placeholder="filter by owner"
+                                                                name="owner">
+
+                                                        <div class="col-lg-4"
+                                                                method="get"> 
+                                                                <input type="submit"
+                                                                class="btn btn-danger"
+                                                                name="btn" value="filter">
+                                                        </div>
+                                                </form>
+                                        </div>
+                                </div>
+                        </div>
+                </div>
+
+                <!-- Grocery Cards -->
+                <div class="row mt-4">
+
+                        <div class="col-lg-4">
+                                <div class="card">
+                                        <div class="card-body">
+                                                <h5 class="card-title">
+                                                        Study baseball rules                                            </h5>
+                                                <h6 class="card-subtitle mb-2 text-muted">
+                                                        Ville                                           </h6>
+                                                                                                <p class="text-danger">NOT STARTED</p>
+
+                                                                                                <a href=
+                                                "delete.php?id=8"
+                                                        class="card-link">
+                                                        Delete
+                                                </a>
+                                                <a href=
+                                                "update.php?id=8"
+                                                        class="card-link">
+                                                        Update
+                                                </a>
+                                        </div>
+                                </div><br>
+                        </div>
+
+                        <div class="col-lg-4">
+                                <div class="card">
+                                        <div class="card-body">
+                                                <h5 class="card-title">
+                                                        Make lunchbox                                           </h5>
+                                                <h6 class="card-subtitle mb-2 text-muted">
+                                                        Pirkko                                          </h6>
+                                                                                                <p class="text-danger">NOT STARTED</p>
+
+                                                                                                <a href=
+                                                "delete.php?id=7"
+                                                        class="card-link">
+                                                        Delete
+                                                </a>
+                                                <a href=
+                                                "update.php?id=7"
+                                                        class="card-link">
+                                                        Update
+                                                </a>
+                                        </div>
+                                </div><br>
+                        </div>
+
+                        <div class="col-lg-4">
+                                <div class="card">
+                                        <div class="card-body">
+                                                <h5 class="card-title">
+                                                        Make travel itinerary                                           </h5>
+                                                <h6 class="card-subtitle mb-2 text-muted">
+                                                        Pirkko                                          </h6>
+                                                                                                <p class="text-info">ONGOING</p>
+
+                                                                                                <a href=
+                                                "delete.php?id=6"
+                                                        class="card-link">
+                                                        Delete
+                                                </a>
+                                                <a href=
+                                                "update.php?id=6"
+                                                        class="card-link">
+                                                        Update
+                                                </a>
+                                        </div>
+                                </div><br>
+                        </div>
+
+                        <div class="col-lg-4">
+                                <div class="card">
+                                        <div class="card-body">
+                                                <h5 class="card-title">
+                                                        Travel to Koli                                          </h5>
+                                                <h6 class="card-subtitle mb-2 text-muted">
+                                                        Markus                                          </h6>
+                                                                                                <p class="text-info">ONGOING</p>
+
+                                                                                                <a href=
+                                                "delete.php?id=4"
+                                                        class="card-link">
+                                                        Delete
+                                                </a>
+                                                <a href=
+                                                "update.php?id=4"
+                                                        class="card-link">
+                                                        Update
+                                                </a>
+                                        </div>
+                                </div><br>
+                        </div>
+
+                        <div class="col-lg-4">
+                                <div class="card">
+                                        <div class="card-body">
+                                                <h5 class="card-title">
+                                                        Buy train ticket                                                </h5>
+                                                <h6 class="card-subtitle mb-2 text-muted">
+                                                        Markus                                          </h6>
+                                                                                                <p class="text-info">ONGOING</p>
+
+                                                                                                <a href=
+                                                "delete.php?id=3"
+                                                        class="card-link">
+                                                        Delete
+                                                </a>
+                                                <a href=
+                                                "update.php?id=3"
+                                                        class="card-link">
+                                                        Update
+                                                </a>
+                                        </div>
+                                </div><br>
+                        </div>
+
+                        <div class="col-lg-4">
+                                <div class="card">
+                                        <div class="card-body">
+                                                <h5 class="card-title">
+                                                        Start wkd job                                           </h5>
+                                                <h6 class="card-subtitle mb-2 text-muted">
+                                                        Ville                                           </h6>
+                                                                                                <p class="text-info">ONGOING</p>
+
+                                                                                                <a href=
+                                                "delete.php?id=2"
+                                                        class="card-link">
+                                                        Delete
+                                                </a>
+                                                <a href=
+                                                "update.php?id=2"
+                                                        class="card-link">
+                                                        Update
+                                                </a>
+                                        </div>
+                                </div><br>
+                        </div>
+                                        </div>
+        </div>
+</body>
+
+</html>
+[12]        
