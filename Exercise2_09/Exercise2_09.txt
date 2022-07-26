@@ -1,0 +1,97 @@
+COMMANDS:
+
+[cronjob] docker build . -t vuolahti/cronjob:01 --no-cache             
+[+] Building 9.3s (11/11) FINISHED                                                                                                                                                                                                                                            
+ => [internal] load build definition from Dockerfile                                                                                                                                                                                                                     0.1s
+ => => transferring dockerfile: 189B                                                                                                                                                                                                                                     0.0s
+ => [internal] load .dockerignore                                                                                                                                                                                                                                        0.0s
+ => => transferring context: 2B                                                                                                                                                                                                                                          0.0s
+ => [internal] load metadata for docker.io/library/alpine:latest                                                                                                                                                                                                         1.6s
+ => [auth] library/alpine:pull token for registry-1.docker.io                                                                                                                                                                                                            0.0s
+ => [internal] load build context                                                                                                                                                                                                                                        0.1s
+ => => transferring context: 537B                                                                                                                                                                                                                                        0.0s
+ => CACHED [1/5] FROM docker.io/library/alpine@sha256:7580ece7963bfa863801466c0a488f11c86f85d9988051a9f9c68cb27f6b7872                                                                                                                                                   0.0s
+ => [2/5] RUN apk add --no-cache mysql-client curl nano                                                                                                                                                                                                                  4.1s
+ => [3/5] COPY ./script/add.sh /tmp/script/add.sh                                                                                                                                                                                                                        0.1s 
+ => [4/5] WORKDIR /tmp/script                                                                                                                                                                                                                                            0.1s 
+ => [5/5] RUN chmod a+x add.sh                                                                                                                                                                                                                                           1.8s 
+ => exporting to image                                                                                                                                                                                                                                                   1.0s 
+ => => exporting layers                                                                                                                                                                                                                                                  1.0s 
+ => => writing image sha256:828ffc7a6bac45b358ba736d2058788f39a58a9e1608f4a37e8191310e20d67c                                                                                                                                                                             0.0s 
+ => => naming to docker.io/vuolahti/cronjob:01                                                                                                                                                                                                                           0.0s
+Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
+
+
+[cronjob] docker push vuolahti/cronjob:01                                                                                                                                                                                                                      
+The push refers to repository [docker.io/vuolahti/cronjob]
+78517f981c4b: Pushed 
+5f70bf18a086: Layer already exists 
+d30a706471ab: Pushed 
+9ab552f40f8b: Pushed 
+ec34fcc1d526: Layer already exists 
+01: digest: sha256:dd338849e6307eb32f5023fcbf727e3cfb9172ccc0dbe5f93f18087caeb47ad6 size: 1360
+
+
+[e209] kaf manifests/
+configmap/database-env unchanged
+configmap/database-sql unchanged
+cronjob.batch/backup configured
+ingress.networking.k8s.io/taskproject-ingress unchanged
+secret/database-keys unchanged
+service/taskproject-svc unchanged
+statefulset.apps/taskproject-ss configured
+
+
+DATABASE QUERY PRINTED IN CRON JOB LOG
+
+[e209] kubectl logs backup-27647611-ncg8r                                                                                                                                                                                                                      
+*************************** 1. row ***************************
+         id: 2
+description: Start wkd job
+      owner: Ville
+     status: ONGOING
+    created: 2020-02-01
+*************************** 2. row ***************************
+         id: 3
+description: Buy train ticket
+      owner: Markus
+     status: ONGOING
+    created: 2022-07-25
+*************************** 3. row ***************************
+         id: 4
+description: Travel to Koli
+      owner: Markus
+     status: NOT_STARTED
+    created: 2022-07-26
+*************************** 4. row ***************************
+         id: 6
+description: Make travel itinerary
+      owner: Pirkko
+     status: ONGOING
+    created: 2022-07-25
+*************************** 5. row ***************************
+         id: 7
+description: Make lunchbox
+      owner: Pirkko
+     status: NOT_STARTED
+    created: 2022-07-25
+*************************** 6. row ***************************
+         id: 9
+description: Test #2
+      owner: Markus
+     status: NOT_STARTED
+    created: 2022-07-26
+*************************** 7. row ***************************
+         id: 10
+description: Test #3
+      owner: Markus
+     status: NOT_STARTED
+    created: 2022-07-26
+*************************** 8. row ***************************
+         id: 13
+description: https://en.wikipedia.org/wiki/Ray_Walton
+      owner: Markus
+     status: NOT_STARTED
+    created: 2022-07-26
+
+

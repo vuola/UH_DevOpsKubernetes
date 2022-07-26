@@ -1,0 +1,1 @@
+curl -i -s https://en.wikipedia.org/wiki/Special:Random | grep "location:" | cut -d' ' -f2 | tr -cd '\11\12\15\40-\176'

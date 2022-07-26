@@ -1,0 +1,15 @@
+# PostgreSQL StatefulSet ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-sql
+  namespace: project
+data:
+  init.sql: |
+    CREATE DATABASE IF NOT EXISTS taskdb;
+    USE taskdb;
+    CREATE TABLE taskproject (id INT(10) NOT NULL AUTO_INCREMENT, description VARCHAR(140) NOT NULL, owner VARCHAR(70), status VARCHAR(20) NOT NULL, created DATE NOT NULL, PRIMARY KEY (id));
+    DEFAULT CHARSET=utf8; 
+    INSERT INTO taskproject (description, owner, status, created) VALUES ('Buy groceries', 'Markus', 'NOT_STARTED', '2012-06-01 02:12:30');
+    INSERT INTO taskproject (description, owner, status, created) VALUES ('Start wkd job', 'Ville', 'ONGOING', '2020-02-01 06:22:50');
+
