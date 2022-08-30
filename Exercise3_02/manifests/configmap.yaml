@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: exercise
+  name: logoutputping-conf
+data:
+  MESSAGE: "Hello !"
+  BACKEND_URL: "http://logoutputping-svc:2346"

@@ -1,0 +1,30 @@
+[e302] kubectl create namespace exercise                                                                                                               
+namespace/exercise created
+
+[e302] kubens                                                                                                                                          
+Context "gke_dwk-gke-360910_europe-north1-b_dwk-cluster" modified.
+Active namespace is "exercise".
+
+[e302] kaf manifests/                                                                                                                                  
+configmap/logoutputping-conf created
+deployment.apps/logoutputping-dep created
+ingress.networking.k8s.io/logoutputping-ingress created
+service/logoutputping-svc created
+
+[e302] curl http://34.120.126.59/                                                                                                                      
+Hello !
+2022-08-30 11:08:29Z lwVJMsCS3kiO9AxYb6NXQao7uLeqDcvK
+ <br />Ping / Pongs: 66%
+
+[e302] curl http://34.120.126.59/                                                                                                                      
+Hello !
+2022-08-30 11:08:49Z lwVJMsCS3kiO9AxYb6NXQao7uLeqDcvK
+ <br />Ping / Pongs: 69%
+
+[e302] curl http://34.120.126.59/pingpong                                                                                                              
+PONG 72%                                                                                                                                                
+
+[e302] curl http://34.120.126.59/pingpong                                                                                                              
+PONG 76%                                                                                                                                                
+
+
