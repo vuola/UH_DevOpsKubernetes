@@ -1,0 +1,14 @@
+# PostgreSQL StatefulSet ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-config
+data:
+  POSTGRES_DB: postgres
+  POSTGRES_TABLE: counter
+  POSTGRES_USER: postgres
+  PGDATA: /data/pgdata
+  PGHOST: pingpersistent-svc
+  ADD_COMMAND: "CREATE TABLE IF NOT EXISTS counter (id SERIAL PRIMARY KEY, stamp BOOL); INSERT INTO counter(stamp) VALUES (TRUE);" 
+  GET_COMMAND: "SELECT MAX(id) from counter;"
+

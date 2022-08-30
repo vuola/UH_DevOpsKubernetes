@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pingpersistent-ss
+spec:
+  serviceName: pingpersistent-svc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ppp
+  template:
+    metadata:
+      labels:
+        app: ppp
+    spec:
+      containers:
+        - name: pingpongdb
+          image: vuolahti/pingpongdb:01
+          ports: 
+            - name: pingpong-port
+              containerPort: 8081
+          imagePullPolicy: Always
+          envFrom:
+          - secretRef:
+              name: database-keys
+          - configMapRef:
+              name: database-config
+        - name: adminer
+          image: adminer
+          ports: 
+            - name: dbtool-port
+              containerPort: 8080
+        - name: postgres
+          image: postgres:13.2-alpine
+          ports:
+            - name: postgres-port
+              containerPort: 5432
+          imagePullPolicy: Always
+          envFrom:
+          - secretRef:
+              name: database-keys
+          - configMapRef:
+              name: database-config
+
+          volumeMounts:
+            - name: postgres-disk
+              mountPath: /data
+              subPath: postgres
+
+
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-disk
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 100Mi

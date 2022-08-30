@@ -1,0 +1,20 @@
+apiVersion: v1 # Includes the Service for lazyness
+kind: Service
+metadata:
+  name: pingpersistent-svc
+  labels:
+    app: pingpersistent
+spec:
+  type: LoadBalancer
+  selector:
+    app: ppp
+  ports:
+  - port: 5432
+    protocol: TCP
+    name: postgres-port
+  - port: 8080
+    protocol: TCP
+    name: dbtool-port
+  - port: 8081
+    protocol: TCP
+    name: pingpong-port

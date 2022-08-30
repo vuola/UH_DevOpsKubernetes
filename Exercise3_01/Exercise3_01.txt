@@ -1,0 +1,44 @@
+[~] clusterup                                                                                                             
+Default change: VPC-native is the default mode during cluster creation for versions greater than 1.21.0-gke.1500. To create advanced routes based clusters, please pass the `--no-enable-ip-alias` flag
+Default change: During creation of nodepools or autoscaling configuration changes for cluster versions greater than 1.24.1-gke.800 a default location policy is applied. For Spot and PVM it defaults to ANY, and for all other VM kinds a BALANCED policy is used. To change the default values use the `--location-policy` flag.
+Note: Your Pod address range (`--cluster-ipv4-cidr`) can accommodate at most 1008 node(s).
+Creating cluster dwk-cluster in europe-north1-b... Cluster is being health-checked (master is healthy)...done.            
+Created [https://container.googleapis.com/v1/projects/dwk-gke-360910/zones/europe-north1-b/clusters/dwk-cluster].
+To inspect the contents of your cluster, go to: https://console.cloud.google.com/kubernetes/workload_/gcloud/europe-north1-b/dwk-cluster?project=dwk-gke-360910
+kubeconfig entry generated for dwk-cluster.
+NAME         LOCATION         MASTER_VERSION    MASTER_IP       MACHINE_TYPE  NODE_VERSION      NUM_NODES  STATUS
+dwk-cluster  europe-north1-b  1.22.12-gke.1200  35.228.253.102  e2-medium     1.22.12-gke.1200  3          RUNNING
+
+[e301] kubectl apply -f manifests                                                              
+configmap/database-config created
+secret/database-keys created
+service/pingpersistent-svc created
+statefulset.apps/pingpersistent-ss created
+
+[e301] kubectl get svc --watch                                                                 
+NAME                 TYPE           CLUSTER-IP   EXTERNAL-IP      PORT(S)                                        AGE
+kubernetes           ClusterIP      10.32.0.1    <none>           443/TCP                                        7m57s
+pingpersistent-svc   LoadBalancer   10.32.1.64   35.228.128.172   5432:31737/TCP,8080:31567/TCP,8081:32291/TCP   2m11s
+
+[e301] curl http://35.228.128.172:8081                                                                                                  
+PONG 1%                                                                                                                                  
+[e301] curl http://35.228.128.172:8081                                                                                                  
+PONG 2%                                                                                                                                  
+
+[e301] kubectl delete -f manifests/service.yaml                                                                                         
+service "pingpersistent-svc" deleted
+
+[e301] curl http://35.228.128.172:8081                                                                                                  
+^C
+
+[e301] kubectl apply -f manifests/service.yaml                                                                                          
+service/pingpersistent-svc created
+
+[e301] kubectl get svc --watch                                                                                                          
+NAME                 TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)                                        AGE
+kubernetes           ClusterIP      10.32.0.1      <none>           443/TCP                                        18m
+pingpersistent-svc   LoadBalancer   10.32.12.147   35.228.128.172   5432:31677/TCP,8080:32479/TCP,8081:30931/TCP   48s
+^C%                                                                                                                                      
+
+[e301] curl http://35.228.128.172:8081                                                                                                  
+PONG 3%                                                                                                                                  
