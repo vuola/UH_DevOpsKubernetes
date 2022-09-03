@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup
+  namespace: project
+spec:
+  schedule: "00 18 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cronjob
+            image: PROJECT/CRONJOB
+            imagePullPolicy: IfNotPresent
+#            imagePullPolicy: Always
+            envFrom:
+            - secretRef:
+                name: database-keys
+            - configMapRef:
+                name: database-env
+            command:
+            - /bin/sh
+            - ./add.sh
+          restartPolicy: OnFailure
