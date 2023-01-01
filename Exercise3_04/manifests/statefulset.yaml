@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: taskproject-ss
+#  namespace: project
+spec:
+  serviceName: "taskproject-svc"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tsp
+  template:
+    metadata:
+      labels:
+        app: tsp
+    spec:
+      containers:
+      - name: frontend-taskproject
+        image: PROJECT/FRONTEND
+        ports: 
+        - name: frontend-port
+          containerPort: 8080
+        imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: database-keys
+        - configMapRef:
+            name: database-env
+      - name: backend-taskproject
+        image: PROJECT/BACKEND
+        ports: 
+        - name: backend-port
+          containerPort: 8081
+        imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: database-keys
+        - configMapRef:
+            name: database-env
+# start
+#      - name: adminer
+#        image: PROJECT/ADMINER
+#        ports: 
+#        - name: dbtool-port
+#          containerPort: 8080
+#        imagePullPolicy: Always
+#        envFrom:
+#        - secretRef:
+#            name: database-keys
+#        - configMapRef:
+#            name: database-env
+# end
+      - name: mariadb
+        image: PROJECT/MARIADB
+        ports:
+        - name: mariadb-port
+          containerPort: 3306
+        envFrom:
+        - secretRef:
+            name: database-keys
+        - configMapRef:
+            name: database-env
+        volumeMounts:
+        - name: mariadb-disk
+          mountPath: /var/lib/mysql
+          subPath: mysql
+        - name: config-map
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: config-map
+        configMap:
+          name: database-sql
+          items:
+            - key: init.sql
+              path: init.sql
+  volumeClaimTemplates:
+  - metadata:
+      name: mariadb-disk
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 100Mi

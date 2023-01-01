@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - manifests/configmap_env.yaml
+  - manifests/configmap_sql.yaml
+  - manifests/cronjob.yaml
+  - manifests/ingress.yaml
+  - manifests/service.yaml
+  - manifests/statefulset.yaml
+images:
+  - name: PROJECT/FRONTEND
+    newName: dwk-gke-360910/FRONTEND
+  - name: PROJECT/BACKEND
+    newName: dwk-gke-360910/BACKEND
+  - name: PROJECT/MARIADB
+    newName: dwk-gke-360910/MARIADB
+  - name: PROJECT/CRONJOB
+    newName: dwk-gke-360910/CRONJOB
+  - name: PROJECT/ADMINER
+    newName: dwk-gke-360910/ADMINER
