@@ -1,0 +1,113 @@
+name: Build and Deploy to GKE
+
+on:
+  push:
+    paths_ignore:
+      - '.github/workflows/**'
+
+env:
+  GAR_LOCATION: eu.gcr.io 
+  REPOSITORY: dokproject
+  PROJECT: dwk-gke-360910
+  VERSION: '0.0.1'
+
+jobs:
+  setup-build-publish-deploy: 
+    name: Setup, Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - name: Checkout
+      uses: 'actions/checkout@v3'
+
+    # Configure Workload Identity Federation and generate an access token.
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        workload_identity_provider: 'projects/26772408224/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+        service_account: 'github-actions@dwk-gke-360910.iam.gserviceaccount.com'
+
+    # Setup gcloud CLI
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+
+    # Configure Docker to use the gcloud command-line tool as a credential
+    # helper for authentication (https://cloud.google.com/artifact-registry/docs/docker/authentication)
+    - name: Docker configuration
+      run: |-
+        gcloud --quiet auth configure-docker
+
+    # Get the GKE credentials so we can deploy to the cluster
+    - id: 'get-credentials'
+      uses: 'google-github-actions/get-gke-credentials@v1'
+      with:
+        cluster_name: 'dwk-cluster'
+        location: 'europe-north1-b'
+
+    # Build the Docker images
+    - name: Build backend
+      run: |-
+        docker build \
+          --tag "$GAR_LOCATION/$PROJECT/$REPOSITORY/backend:${GITHUB_REF#refs/heads/}-$VERSION" \
+          ./backend
+    - name: Build frontend
+      run: |-
+        docker build \
+          --tag "$GAR_LOCATION/$PROJECT/$REPOSITORY/frontend:${GITHUB_REF#refs/heads/}-$VERSION" \
+          ./frontend
+    - name: Build cronjob
+      run: |-
+        docker build \
+          --tag "$GAR_LOCATION/$PROJECT/$REPOSITORY/cronjob:${GITHUB_REF#refs/heads/}-$VERSION" \
+          ./cronjob
+
+    # Push the Docker image to Google Artifact Registry
+    - name: Publish backend
+      run: |-
+        docker push "$GAR_LOCATION/$PROJECT/$REPOSITORY/backend:${GITHUB_REF#refs/heads/}-$VERSION"
+    - name: Publish frontend
+      run: |-
+        docker push "$GAR_LOCATION/$PROJECT/$REPOSITORY/frontend:${GITHUB_REF#refs/heads/}-$VERSION"
+    - name: Publish cronjob
+      run: |-
+        docker push "$GAR_LOCATION/$PROJECT/$REPOSITORY/cronjob:${GITHUB_REF#refs/heads/}-$VERSION"
+    - name: Pull mariadb from docker
+      run: |-
+        docker pull mariadb:latest
+        docker tag mariadb:latest "$GAR_LOCATION/$PROJECT/$REPOSITORY/mariadb:${GITHUB_REF#refs/heads/}-$VERSION"
+    - name: Publish mariadb to G
+      run: |-
+        docker push "$GAR_LOCATION/$PROJECT/$REPOSITORY/mariadb:${GITHUB_REF#refs/heads/}-$VERSION"
+    - name: Pull adminer from docker
+      run: |-
+        docker pull adminer:latest
+        docker tag adminer:latest "$GAR_LOCATION/$PROJECT/$REPOSITORY/adminer:${GITHUB_REF#refs/heads/}-$VERSION"
+    - name: Publish adminer to G
+      run: |-
+        docker push "$GAR_LOCATION/$PROJECT/$REPOSITORY/adminer:${GITHUB_REF#refs/heads/}-$VERSION"
+
+    # Set up kustomize
+    - name: Set up Kustomize
+      run: |-
+        curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+        chmod u+x ./kustomize
+    # Deploy the Docker image to the GKE cluster
+    - name: Deploy
+      run: |-
+        kubectl create namespace ${GITHUB_REF#refs/heads/} || true
+        kubectl config set-context --current --namespace=${GITHUB_REF#refs/heads/}
+        kustomize edit set namespace ${GITHUB_REF#refs/heads/}
+        ./kustomize edit set image dwk-gke-360910/BACKEND=$GAR_LOCATION/$PROJECT/$REPOSITORY/backend:${GITHUB_REF#refs/heads/}-$VERSION
+        ./kustomize edit set image dwk-gke-360910/FRONTEND=$GAR_LOCATION/$PROJECT/$REPOSITORY/frontend:${GITHUB_REF#refs/heads/}-$VERSION
+        ./kustomize edit set image dwk-gke-360910/MARIADB=$GAR_LOCATION/$PROJECT/$REPOSITORY/mariadb:${GITHUB_REF#refs/heads/}-$VERSION
+        ./kustomize edit set image dwk-gke-360910/CRONJOB=$GAR_LOCATION/$PROJECT/$REPOSITORY/cronjob:${GITHUB_REF#refs/heads/}-$VERSION
+        ./kustomize edit set image dwk-gke-360910/ADMINER=$GAR_LOCATION/$PROJECT/$REPOSITORY/adminer:${GITHUB_REF#refs/heads/}-$VERSION
+        kubectl apply -k .
+        kubectl rollout status deployment
+        kubectl get services -o wide
