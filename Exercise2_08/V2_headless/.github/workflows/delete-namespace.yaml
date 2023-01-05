@@ -1,0 +1,57 @@
+name: Build and Deploy to GKE
+
+on:
+  delete:
+    paths_ignore:
+      - '.github/workflows/**'
+
+env:
+  GAR_LOCATION: eu.gcr.io 
+  REPOSITORY: dokproject
+  PROJECT: dwk-gke-360910
+  VERSION: '0.0.1'
+
+jobs:
+  delete-namespace: 
+    name: Delete namespace
+    runs-on: ubuntu-latest
+
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - name: Checkout
+      uses: 'actions/checkout@v3'
+
+    # Configure Workload Identity Federation and generate an access token.
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        workload_identity_provider: 'projects/26772408224/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+        service_account: 'github-actions@dwk-gke-360910.iam.gserviceaccount.com'
+
+    # Setup gcloud CLI
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+
+    # Configure Docker to use the gcloud command-line tool as a credential
+    # helper for authentication (https://cloud.google.com/artifact-registry/docs/docker/authentication)
+    - name: Docker configuration
+      run: |-
+        gcloud --quiet auth configure-docker
+
+    # Get the GKE credentials so we can deploy to the cluster
+    - id: 'get-credentials'
+      uses: 'google-github-actions/get-gke-credentials@v1'
+      with:
+        cluster_name: 'dwk-cluster'
+        location: 'europe-north1-b'
+
+    # Delete the namespace corresponding to deleted branch
+    - name: Delete
+      run: |-
+        kubectl delete namespace ${{ github.event.ref }} || true
+          
