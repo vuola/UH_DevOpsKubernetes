@@ -1,0 +1,102 @@
+
+ACTIVATE Cloud SQL Admin API
+
+>> gcloud sql instances describe instance-for-taskdb                                      exercise307  ✭ ✱
+API [sqladmin.googleapis.com] not enabled on project [26772408224]. Would you like to enable and retry (this will 
+take a few minutes)? (y/N)?  y
+
+ENABLE WORKLOAD IDENTITY AT CLUSTER STARTUP
+
+gcloud container clusters create dwk-cluster \
+--zone=europe-north1-b \
+--region=europe-north1 \
+--workload-pool=dwk-gke-360910.svc.id.goog
+
+... OR ENABLE GKE WORKLOAD IDENTITY FOR EXISTING CLUSTER
+
+    UPDATE EXISTING CLUSTER TO USE WORKLOAD IDENTITY
+
+    gcloud container clusters update dwk-cluster
+    --zone=europe-north1-b
+    --workload-pool=dwk-gke-360910.svc.id.goog
+
+    UPDATE CURRENT NODEPOOL TO USE WORKLOAD IDENTITY
+
+    gcloud container node-pools update default-pool \
+    --zone=europe-north1-b \
+    --cluster=dwk-cluster \
+    --workload-metadata=GKE_METADATA
+
+ENABLE THE CLUSTER AS THE DEFAULT CLUSTER 
+
+gcloud container clusters get-credentials dwk-cluster \
+--region europe-north1-b
+
+SET UP A GOOGLE SERVICE ACCOUNT (GSA) 
+
+gcloud iam service-accounts create service-account-GKE-CSQL \
+--display-name="Service account providing GKE access to CSQL"
+
+PROVIDE THE GSA WITH IAM ACCESS RIGHTS:
+
+gcloud projects add-iam-policy-binding dwk-gke-360910 \
+--member="serviceAccount:service-account-GKE-CSQL@dwk-gke-360910.iam.gserviceaccount.com" \
+--role="roles/cloudsql.client"
+
+gcloud projects add-iam-policy-binding dwk-gke-360910 \
+--member="serviceAccount:service-account-GKE-CSQL@dwk-gke-360910.iam.gserviceaccount.com" \
+--role="roles/logging.logWriter"
+
+BUILD GSA-KSA BINDINGS
+
+    ADD KUBERNETES SERVICE ACCOUNT (KSA) TO CLUSTER using KSA name 'ksa-cloud-sql'
+
+kubectl apply -f manifests/service-account.yaml
+
+    ENABLE IAM BINDING BETWEEN GSA AND KSA
+
+gcloud iam service-accounts add-iam-policy-binding \
+--role="roles/iam.workloadIdentityUser" \
+--member="serviceAccount:dwk-gke-360910.svc.id.goog[exercise307-2/ksa-cloud-sql]" \
+service-account-GKE-CSQL@dwk-gke-360910.iam.gserviceaccount.com
+ 
+    ADD AN ANNOTATION TO THE KSA NAME
+
+kubectl annotate serviceaccount \
+ksa-cloud-sql  \
+iam.gke.io/gcp-service-account=service-account-GKE-CSQL@dwk-gke-360910.iam.gserviceaccount.com
+
+UPDATE manifests/
+
+    INCLUDE SIDECAR 'cloud-sql-proxy' INTO THE STATEFULSET. FOR PODS, THE MySQL ADDRESS IS THEN 127.0.0.1:3306
+
+DEVELOPING AND DEBUGGING: RUN LOCALLY, CONNECT TO db
+
+    TESTING PROXY: GRANT ME ACCESS
+gcloud projects add-iam-policy-binding dwk-gke-360910 \
+--member="user:markus.vuolahti@gmail.com" \
+--role="roles/cloudsql.client"
+
+    DOWNLOAD PROXY
+wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy
+
+    MAKE IT EXECUTABLE
+chmod +x cloud_sql_proxy
+
+    INSPECT CONNECTION NEEDED TO CLOUD SQL
+gcloud sql instances describe instance-for-taskdb
+>> connectionName: dwk-gke-360910:europe-north1:instance-for-taskdb
+>> - ipAddress: 172.23.176.3
+>> type: PRIVATE
+
+    USE PROXY START-UP OPTION FOR PRIVATE NETWORK CONNECTION
+-ip_address_types=PRIVATE
+
+    LOCAL INVOCATION OF PROXY
+./cloud_sql_proxy -instances=dwk-gke-360910:europe-north1:instance-for-taskdb=tcp:3306
+mysql -u USERNAME -p -h HOST-OR-SERVER-IP 
+
+    START LOCAL PHP TEST SERVER
+$ cd ~/public_html
+$ php -S localhost:8000
+

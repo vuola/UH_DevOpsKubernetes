@@ -1,0 +1,14 @@
+# Google MySQL instance ID: taskbase
+# StatefulSet ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-env
+#  namespace: project
+data:
+  MARIADB_DATABASE: taskdb
+  MARIADB_TABLE: taskproject
+  MARIADB_HOST: 127.0.0.1
+  API_HOST: taskproject-svc:8081
+
+  

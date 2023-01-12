@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskproject-ss
+#  namespace: project
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tsp
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: tsp
+    spec:
+      serviceAccountName: ksa-cloud-sql
+      containers:
+#
+#      - name: adminer
+#        image: PROJECT/ADMINER
+#        ports: 
+#        - name: dbtool-port
+#          containerPort: 8080
+#        imagePullPolicy: Always
+#        envFrom:
+#        - secretRef:
+#            name: database-keys
+#        - configMapRef:
+#            name: database-env
+#
+      - name: frontend-taskproject
+        image: PROJECT/FRONTEND
+        ports: 
+        - name: frontend-port
+          containerPort: 8080
+        imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: database-keys
+        - configMapRef:
+            name: database-env
+#
+      - name: backend-taskproject
+        image: PROJECT/BACKEND
+        ports: 
+          - containerPort: 80
+        resources: {}
+        volumeMounts:
+          - mountPath: /tmp
+            name: backend-claim0
+        workingDir: /app
+        imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: database-keys
+        - configMapRef:
+            name: database-env
+      - name: cloud-sql-proxy
+      # It is recommended to use the latest version of the Cloud SQL proxy
+      # Make sure to update on a regular schedule!
+        image: gcr.io/cloudsql-docker/gce-proxy:1.33.1 # make sure the use the latest version
+        command:
+          - "/cloud_sql_proxy"
+          - "-ip_address_types=PRIVATE"
+      # By default, the proxy will write all logs to stderr.
+      # Write all logs to stdout (except errors
+      # which will still go to stderr)
+          - "-log_debug_stdout"
+      # Default ports MySQL: 3306, Postgres: 5432, SQLServer: 1433
+          - "-instances=dwk-gke-360910:europe-north1:instance-for-taskdb=tcp:0.0.0.0:3306"
+        securityContext:
+      # The default Cloud SQL proxy image runs as the
+      # "nonroot" user and group (uid: 65532) by default.
+          runAsNonRoot: true
+      restartPolicy: Always
+      volumes:
+        - name: backend-claim0
+          persistentVolumeClaim:
+            claimName: backend-claim0
+status: {}            
